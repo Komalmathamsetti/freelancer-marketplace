@@ -1,11 +1,12 @@
 const pool = require("../config/db");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
+// Register User
 exports.registerUser = async (req, res) => {
   try {
     const { full_name, email, password, role, phone } = req.body;
 
-    // Validation
     if (!full_name || !email || !password || !role) {
       return res.status(400).json({
         success: false,
@@ -13,9 +14,8 @@ exports.registerUser = async (req, res) => {
       });
     }
 
-    // Check existing email
     const existingUser = await pool.query(
-      "SELECT * FROM users WHERE email = $1",
+      "SELECT * FROM users WHERE email=$1",
       [email]
     );
 
@@ -26,21 +26,19 @@ exports.registerUser = async (req, res) => {
       });
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Insert user
     const newUser = await pool.query(
       `INSERT INTO users
       (full_name,email,password,role,phone)
       VALUES($1,$2,$3,$4,$5)
-      RETURNING id,full_name,email,role,phone,created_at`,
+      RETURNING id,full_name,email,role,phone`,
       [
         full_name,
         email,
         hashedPassword,
         role,
-        phone
+        phone,
       ]
     );
 
@@ -50,12 +48,86 @@ exports.registerUser = async (req, res) => {
       user: newUser.rows[0],
     });
 
-  } catch (error) {
-    console.log(error);
+  } catch (err) {
+    console.log(err);
 
     res.status(500).json({
       success: false,
       message: "Internal Server Error",
     });
   }
+};
+
+// Login User
+exports.loginUser = async (req, res) => {
+
+  try {
+
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Please enter email and password",
+      });
+    }
+
+    const user = await pool.query(
+      "SELECT * FROM users WHERE email=$1",
+      [email]
+    );
+
+    if (user.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    const isMatch = await bcrypt.compare(
+      password,
+      user.rows[0].password
+    );
+
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid Password",
+      });
+    }
+
+    const token = jwt.sign(
+      {
+        id: user.rows[0].id,
+        role: user.rows[0].role,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1d",
+      }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Login Successful",
+      token,
+      user: {
+        id: user.rows[0].id,
+        full_name: user.rows[0].full_name,
+        email: user.rows[0].email,
+        role: user.rows[0].role,
+      },
+    });
+
+  } catch (err) {
+
+    console.log(err);
+
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+
+  }
+
 };
