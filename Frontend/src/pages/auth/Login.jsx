@@ -26,7 +26,7 @@ export default function LoginPage() {
 
       const response = await loginUser(formData);
 
-      alert(response.data.message);
+      /*alert(response.data.message);*/
 
       localStorage.setItem("token", response.data.token);
 
