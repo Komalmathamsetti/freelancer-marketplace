@@ -5,11 +5,13 @@ const db = require("../Backend/config/db");
 const authRoutes = require("./routes/authRoutes");
 const authMiddleware = require("./middleware/authMiddleware");
 const dashBoardRoutes = require("./routes/dashboardRoutes");
+const profileRoutes = require("./routes/profileRoutes");
 const app = express();
 app.use(cors());
 app.use(express.json());
 app.use("/api/auth",authRoutes);
 app.use("/api/dashboard",dashBoardRoutes);
+app.use("/api/profile",profileRoutes);
 app.get("/api/profile", authMiddleware, (req, res) => {
   res.json({success: true, user: req.user,});
 });

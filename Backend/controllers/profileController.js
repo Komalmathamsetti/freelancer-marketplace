@@ -1,0 +1,48 @@
+const pool = require("../config/db");
+exports.getProfile = async(req,res)=>{
+    try{
+        const userId = req.user.id;
+        const profile = await pool.query(
+            `SELECT * FROM profiles
+            WHERE user_id = $1`,[userId]
+        );
+        if(profile.rows.length === 0){
+            return res.status(404).json({success:false,message:"Profile not found"});
+        }
+        res.json({success:true,profile:profile.rows[0]});
+    }catch(error){
+        console.log(error);
+        res.status(500).json({success:false,message:"Server Error"});
+    }
+};
+exports.updateProfile = async(req,res)=>{
+    try{
+        const userId = req.user.id;
+        const { bio,skills,hourly_rate,experience,portfolio,company_name,company_description,website,contact_number } = req.body;
+        const check = await pool.query(
+            `SELECT * FROM profiles
+            WHERE user_id = $1`,[userId]
+        );
+        if(check.rows.length === 0){
+            const newProfile = await pool.query(
+                `INSERT INTO profiles
+                (user_id,bio,skills,hourly_rate,experience,portfolio,company_name,company_description,website,contact_number)
+                VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+                RETURNING *`,[userId,bio,skills,hourly_rate,experience,portfolio,company_name,company_description,website,contact_number]
+            );
+            return res.json({success:true,message:"Profile Created",profile:newProfile.rows[0]});
+        }
+        const updateProfile = await pool.query(
+            `UPDATE profiles
+            SET 
+            bio = $1,skills=$2,hourly_rate=$3,experience=$4,portfolio=$5,company_name=$6,company_description=$7,website=$8,contact_number=$9
+            WHERE user_id = $10
+            RETURNING *`,
+            [bio,skills,hourly_rate,experience,portfolio,company_name,company_description,website,contact_number,userId]
+        );
+        res.json({success:true,message:"Profile updated successfully",profile:updateProfile.rows[0]});
+    }catch(error){
+        console.log(error);
+        res.status(500).json({success:false,message:"Server Error"});
+    }
+};
