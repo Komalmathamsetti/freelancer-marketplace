@@ -194,7 +194,7 @@ export default function FreelancerDashboard() {
                 </div>
 
                 <div className="mt-6 space-y-3">
-                  <button className="w-full rounded-xl bg-blue-600 px-4 py-3 font-medium text-white hover:bg-blue-700">
+                  <button onClick={() => navigate("/freelancer/profile/edit")} className="w-full rounded-xl bg-blue-600 px-4 py-3 font-medium text-white hover:bg-blue-700">
                     Edit Profile
                   </button>
                   <button className="w-full rounded-xl border border-slate-200 px-4 py-3 font-medium text-slate-700 hover:bg-slate-50">

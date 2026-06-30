@@ -4,6 +4,8 @@ import Login from "./pages/auth/Login";
 import FreelancerDashboard from "./pages/freelancer/freelancerDashboard";
 import ClientDashboard from "./pages/client/clientDashboard";
 import AdminDashboard from "./pages/admin/adminDashboard";
+import EditClientProfile from "./pages/client/editClientProfile";
+import EditFreelancerProfile from "./pages/freelancer/editFreelancerProfile";
 function App() {
 return (
 <BrowserRouter>
@@ -22,6 +24,14 @@ element={<ClientDashboard />}
 <Route
 path="/admin/dashboard"
 element={<AdminDashboard />}
+/>
+<Route
+  path="/freelancer/profile/edit"
+  element={<EditFreelancerProfile />}
+/>
+<Route
+  path="/client/profile/edit"
+  element={<EditClientProfile />}
 />
 </Routes>
 </BrowserRouter>

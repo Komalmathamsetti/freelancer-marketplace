@@ -11,10 +11,12 @@ import {
   MessageSquare,
   LogOut,
   ChevronRight,
+  User
 } from "lucide-react";
 
 const clientItems = [
   { label: "Dashboard", icon: LayoutDashboard, active: true },
+  { label: "Company Profile", icon: User},
   { label: "Post Job", icon: Briefcase },
   { label: "My Jobs", icon: FileText },
   { label: "Proposals", icon: MessageSquare },
@@ -23,7 +25,7 @@ const clientItems = [
   { label: "Logout", icon: LogOut },
 ];
 
-function Sidebar({ items, title, subtitle, sidebarOpen, setSidebarOpen,handleLogout }) {
+function Sidebar({ items, title, subtitle, sidebarOpen, setSidebarOpen,handleLogout,navigate }) {
   return (
     <aside
       className={`fixed inset-y-0 left-0 z-40 w-72 transform bg-white border-r border-slate-200 shadow-sm transition-transform duration-300 md:static md:translate-x-0 ${
@@ -48,7 +50,11 @@ function Sidebar({ items, title, subtitle, sidebarOpen, setSidebarOpen,handleLog
               <li key={item.label}>
                 <button
                       onClick={() => {
-                        if (item.label === "Logout") {
+                        if(item.label === "Company Profile"){
+                          navigate("/client/profile/edit");
+                        }else if(item.label === "Dashboard"){ 
+                          navigate("/client/dashboard");
+                        }else if(item.label === "Logout"){
                           handleLogout();
                         }
                       }}
@@ -144,6 +150,7 @@ export default function ClientDashboard() {
           sidebarOpen={sidebarOpen}
           setSidebarOpen={setSidebarOpen}
           handleLogout={handleLogout}
+          navigate={navigate}
         />
 
         <main className="flex-1">
