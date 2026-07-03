@@ -54,6 +54,9 @@ function Sidebar({ items, title, subtitle, sidebarOpen, setSidebarOpen,handleLog
                           navigate("/client/profile/edit");
                         }else if(item.label === "Dashboard"){ 
                           navigate("/client/dashboard");
+                        }
+                        else if(item.label === "Post Job"){
+                          navigate("/client/post-job");
                         }else if(item.label === "Logout"){
                           handleLogout();
                         }
@@ -174,7 +177,7 @@ export default function ClientDashboard() {
                     <h3 className="text-xl font-semibold">My Jobs</h3>
                     <p className="text-sm text-slate-500">Track your posted jobs</p>
                   </div>
-                  <button className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+                  <button onClick={()=>navigate("/client/post-job")} className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
                     Post Job
                   </button>
                 </div>
@@ -210,7 +213,7 @@ export default function ClientDashboard() {
               <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                 <h3 className="text-xl font-semibold">Quick Actions</h3>
                 <div className="mt-4 space-y-3">
-                  <button className="w-full rounded-xl bg-blue-600 px-4 py-3 font-medium text-white hover:bg-blue-700">
+                  <button onClick={()=>navigate("/client/post-job")} className="w-full rounded-xl bg-blue-600 px-4 py-3 font-medium text-white hover:bg-blue-700">
                     Post a New Job
                   </button>
                   <button className="w-full rounded-xl border border-slate-200 px-4 py-3 font-medium text-slate-700 hover:bg-slate-50">

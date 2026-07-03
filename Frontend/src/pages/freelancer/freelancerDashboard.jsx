@@ -78,6 +78,10 @@ export default function FreelancerDashboard() {
                       onClick={() => {
                         if (item.label === "Logout") {
                           handleLogout();
+                        }else if(item.label === "Profile"){
+                          navigate("/freelancer/profile/edit")
+                        }else if(item.label === "Browse Jobs"){
+                          navigate("/freelancer/jobs")
                         }
                       }}
                      className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left transition ${
@@ -153,7 +157,9 @@ export default function FreelancerDashboard() {
                     <h3 className="text-xl font-semibold">Browse Jobs</h3>
                     <p className="text-sm text-slate-500">Latest opportunities for freelancers</p>
                   </div>
-                  <button className="text-sm font-medium text-blue-600">View All</button>
+                  <button onClick={() => navigate("/freelancer/jobs")} className="text-sm font-medium text-blue-600">
+                    View All
+                  </button>
                 </div>
 
                 <div className="space-y-4">

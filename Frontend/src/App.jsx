@@ -6,6 +6,9 @@ import ClientDashboard from "./pages/client/clientDashboard";
 import AdminDashboard from "./pages/admin/adminDashboard";
 import EditClientProfile from "./pages/client/editClientProfile";
 import EditFreelancerProfile from "./pages/freelancer/editFreelancerProfile";
+import PostJob from "./pages/client/PostJob";
+import JobDetails from "./pages/freelancer/JobDetails";
+import BrowseJobs from "./pages/freelancer/BrowseJobs";
 function App() {
 return (
 <BrowserRouter>
@@ -32,6 +35,18 @@ element={<AdminDashboard />}
 <Route
   path="/client/profile/edit"
   element={<EditClientProfile />}
+/>
+<Route 
+  path="/client/post-job"
+  element={<PostJob />}
+/>
+<Route 
+  path="/freelancer/jobs"
+  element={<BrowseJobs />}
+/>
+<Route 
+  path="/freelancer/jobs/:id"
+  element={<JobDetails/>}
 />
 </Routes>
 </BrowserRouter>
