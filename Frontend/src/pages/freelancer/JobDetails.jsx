@@ -1,10 +1,17 @@
 import { useState,useEffect } from "react";
 import { useNavigate,useParams } from "react-router-dom";
+import { applyJob } from "../../services/proposalServices";
 import { getSingleJob } from "../../services/jobServices";
 export default function JobDetailsPage() {
   const navigate = useNavigate();
   const { id } = useParams();
   const [job, setJob] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [proposal, setProposal] = useState({
+    proposal_text: "",
+    bid_amount: "",
+    estimated_days: ""
+  });
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     const fetchJob = async () => {
@@ -35,7 +42,24 @@ export default function JobDetailsPage() {
         </h1>
     );
   }
+  const handleChange = (e) => {
+    setProposal({
+        ...proposal,
+        [e.target.name]: e.target.value
+    });
+  };
+  const handleApply = async () => {
+    try {
+        const response = await applyJob(id, proposal);
+        alert(response.data.message);
+        setShowModal(false);
+        navigate("/freelancer/my-applications");
+    } catch (error) {
+        alert(error.response?.data?.message || "Error");
+    }
+  };
   return (
+  <>
     <div className="min-h-screen bg-linear-to-br from-blue-50 to-white px-4 py-10">
       <div className="mx-auto max-w-4xl rounded-3xl bg-white p-6 shadow-xl ring-1 ring-blue-100 md:p-10">
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -77,7 +101,7 @@ export default function JobDetailsPage() {
         </div>
 
         <div className="mt-8 flex flex-col gap-4 sm:flex-row">
-          <button className="rounded-2xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700">
+          <button onClick={() => setShowModal(true)} className="rounded-2xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700">
             Apply
           </button>
           <button onClick={() => navigate("/freelancer/jobs")}
@@ -87,5 +111,67 @@ export default function JobDetailsPage() {
         </div>
       </div>
     </div>
+    {showModal && (
+      <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
+        <div className="bg-white rounded-3xl p-8 w-full max-w-xl">
+          <h2 className="text-2xl font-bold mb-6">
+            Apply For Job
+          </h2>
+          <div className="space-y-5">
+            <div>
+              <label className="block mb-2 font-semibold">
+                Proposal
+              </label>
+              <textarea
+                rows="5"
+                name="proposal_text"
+                value={proposal.proposal_text}
+                onChange={handleChange}
+                className="w-full border rounded-xl p-3"
+              />
+            </div>
+            <div>
+              <label className="block mb-2 font-semibold">
+                Bid Amount
+              </label>
+              <input
+                type="number"
+                name="bid_amount"
+                value={proposal.bid_amount}
+                onChange={handleChange}
+                className="w-full border rounded-xl p-3"
+              />
+            </div>
+            <div>
+              <label className="block mb-2 font-semibold">
+                Estimated Days
+              </label>
+              <input
+                type="number"
+                name="estimated_days"
+                value={proposal.estimated_days}
+                onChange={handleChange}
+                className="w-full border rounded-xl p-3"
+              />
+            </div>
+            <div className="flex justify-end gap-4 mt-6">
+              <button
+                onClick={() => setShowModal(false)}
+                className="px-6 py-3 rounded-xl border"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleApply}
+                className="bg-blue-600 text-white px-6 py-3 rounded-xl"
+              >
+                Submit Proposal
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
+</>
   );
 }

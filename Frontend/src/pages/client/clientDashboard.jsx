@@ -13,7 +13,7 @@ import {
   ChevronRight,
   User
 } from "lucide-react";
-
+import { getMyJobs } from "../../services/jobServices";
 const clientItems = [
   { label: "Dashboard", icon: LayoutDashboard, active: true },
   { label: "Company Profile", icon: User},
@@ -124,22 +124,42 @@ export default function ClientDashboard() {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const user = JSON.parse(localStorage.getItem("user"));
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
-    const token = localStorage.getItem("token");
-       if (!token) {
-        navigate("/login");
-       }
+    const loadJobs = async () => {
+        try {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                navigate("/login");
+                return;
+            }
+            const response = await getMyJobs();
+            if (response.data.success) {
+                setJobs(response.data.jobs);
+            }
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+    loadJobs();
     }, [navigate]);
     const handleLogout = () => {
      localStorage.removeItem("token");
      localStorage.removeItem("user");
      navigate("/login");
     };
-  const jobs = [
-    { title: "Build Landing Page", status: "Active", bids: 12, budget: "$900" },
-    { title: "Mobile App UI Design", status: "Reviewing", bids: 8, budget: "$1,500" },
-    { title: "React Dashboard", status: "Closed", bids: 20, budget: "$2,200" },
-  ];
+  if(loading){
+     return (
+        <div className="min-h-screen flex justify-center items-center">
+            <h1 className="text-3xl font-bold">
+                Loading Dashboard...
+            </h1>
+        </div>
+    );
+  }
   if(!user){
     return null;
   }
@@ -165,9 +185,9 @@ export default function ClientDashboard() {
 
           <div className="p-4 md:p-6">
             <div className="grid gap-4 md:grid-cols-3">
-              <StatCard label="Open Jobs" value="14" />
-              <StatCard label="Proposals" value="38" />
-              <StatCard label="Unread Messages" value="7" />
+              <StatCard label="Open Jobs" value={jobs.length} />
+              <StatCard label="Proposals" value="--" />
+              <StatCard label="Unread Messages" value="0" />
             </div>
 
             <div className="mt-6 grid gap-6 lg:grid-cols-3">
@@ -181,7 +201,11 @@ export default function ClientDashboard() {
                     Post Job
                   </button>
                 </div>
-
+                 {jobs.length === 0 && (
+                  <div className="text-center py-8">
+                    <h2 className="text-2xl font-bold text-slate-500">No Jobs Posted Yet</h2>
+                  </div>
+                )}
                 <div className="space-y-4">
                   {jobs.map((job) => (
                     <div
@@ -192,16 +216,16 @@ export default function ClientDashboard() {
                         <div>
                           <h4 className="text-lg font-semibold">{job.title}</h4>
                           <p className="text-sm text-slate-500">
-                            {job.bids} proposals received
+                            Category : {job.category}
                           </p>
                         </div>
                         <div className="flex items-center gap-4">
                           <div className="text-right">
-                            <p className="text-sm font-semibold text-blue-600">{job.budget}</p>
-                            <p className="text-xs text-slate-400">{job.status}</p>
+                            <p className="text-sm font-semibold text-blue-600">₹{Number(job.budget).toLocaleString("en-IN")}</p>
+                            <p className="text-xs text-slate-400">{job.location}</p>
                           </div>
-                          <button className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-50">
-                            View
+                          <button onClick={() => navigate(`/client/applicants/${job.id}`)} className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-50">
+                            View Applicants
                           </button>
                         </div>
                       </div>

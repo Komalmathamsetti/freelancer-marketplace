@@ -7,6 +7,7 @@ const authMiddleware = require("./middleware/authMiddleware");
 const dashBoardRoutes = require("./routes/dashboardRoutes");
 const profileRoutes = require("./routes/profileRoutes");
 const jobRoutes = require("./routes/jobRoutes");
+const proposalRoutes = require("./routes/proposalRoutes");
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -14,6 +15,7 @@ app.use("/api/auth",authRoutes);
 app.use("/api/dashboard",dashBoardRoutes);
 app.use("/api/profile",profileRoutes);
 app.use("/api/jobs",jobRoutes);
+app.use("/api/proposals",proposalRoutes);
 app.get("/api/profile", authMiddleware, (req, res) => {
   res.json({success: true, user: req.user,});
 });

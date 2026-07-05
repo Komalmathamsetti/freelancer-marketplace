@@ -47,3 +47,27 @@ exports.getSingleJob = async (req, res) => {
         res.status(500).json({success:false,message:"Server Error"});
     }
 };
+exports.getMyJobs = async (req, res) => {
+    try {
+        const clientId = req.user.id;
+        const jobs = await pool.query(
+            `
+            SELECT *
+            FROM jobs
+            WHERE client_id = $1
+            ORDER BY created_at DESC
+            `,
+            [clientId]
+        );
+        res.json({
+            success: true,
+            jobs: jobs.rows
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            success: false,
+            message: "Server Error"
+        });
+    }
+};

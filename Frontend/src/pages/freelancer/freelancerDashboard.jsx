@@ -34,6 +34,7 @@ export default function FreelancerDashboard() {
     { label: "Dashboard", icon: LayoutDashboard, active: true },
     { label: "Profile", icon: User },
     { label: "Browse Jobs", icon: Briefcase },
+    { label:"My Applications", icon:FileText},
     { label: "My Proposals", icon: FileText },
     { label: "Messages", icon: MessageSquare },
     { label: "Notifications", icon: Bell },
@@ -82,6 +83,8 @@ export default function FreelancerDashboard() {
                           navigate("/freelancer/profile/edit")
                         }else if(item.label === "Browse Jobs"){
                           navigate("/freelancer/jobs")
+                        }else if(item.label==="My Applications"){
+                          navigate("/freelancer/my-applications");
                         }
                       }}
                      className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left transition ${

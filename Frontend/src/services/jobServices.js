@@ -12,3 +12,4 @@ API.interceptors.request.use((config)=>{
 export const createJob = (data)=>API.post("/jobs",data);
 export const getAllJobs = ()=>API.get("/jobs");
 export const getSingleJob = (id)=>API.get(`/jobs/${id}`);
+export const getMyJobs = () => API.get("/jobs/my-jobs");

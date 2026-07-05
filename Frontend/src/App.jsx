@@ -9,6 +9,8 @@ import EditFreelancerProfile from "./pages/freelancer/editFreelancerProfile";
 import PostJob from "./pages/client/PostJob";
 import JobDetails from "./pages/freelancer/JobDetails";
 import BrowseJobs from "./pages/freelancer/BrowseJobs";
+import MyApplications from "./pages/freelancer/MyApplications";
+import ViewApplicants from "./pages/client/viewApplicants";
 function App() {
 return (
 <BrowserRouter>
@@ -43,6 +45,14 @@ element={<AdminDashboard />}
 <Route 
   path="/freelancer/jobs"
   element={<BrowseJobs />}
+/>
+<Route 
+  path="/freelancer/my-applications"
+  element={<MyApplications />}
+/>
+<Route
+  path="/client/applicants/:jobId"
+  element={<ViewApplicants />}
 />
 <Route 
   path="/freelancer/jobs/:id"
