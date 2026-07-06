@@ -52,16 +52,137 @@ exports.getMyJobs = async (req, res) => {
         const clientId = req.user.id;
         const jobs = await pool.query(
             `
-            SELECT *
+            SELECT
+                jobs.*,
+                COUNT(proposals.id) AS proposal_count
             FROM jobs
-            WHERE client_id = $1
-            ORDER BY created_at DESC
+            LEFT JOIN proposals
+            ON jobs.id = proposals.job_id
+            WHERE jobs.client_id = $1
+            GROUP BY jobs.id
+            ORDER BY jobs.created_at DESC
             `,
             [clientId]
         );
         res.json({
             success: true,
             jobs: jobs.rows
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            success: false,
+            message: "Server Error"
+        });
+    }
+};
+exports.updateJob = async(req,res)=>{
+    try{
+        const clientId = req.user.id;
+        const { id } = req.params;
+        const {
+            title,
+            description,
+            category,
+            budget,
+            experience_level,
+            deadline,
+            location
+        } = req.body;
+        const job = await pool.query(
+            `SELECT * 
+            FROM jobs
+            WHERE id = $1
+            AND client_id = $2`,[id,clientId]
+        );
+        if(job.rows.length === 0){
+            return res.status(404).json({success:false,message:"Job not found"});
+        }
+        const updatedJob = await pool.query(
+            `UPDATE jobs
+            SET title = $1,
+            description= $2,
+            category = $3,
+            budget= $4,
+            experience_level = $5,
+            deadline = $6,
+            location = $7
+            WHERE id = $8
+            RETURNING *`,[title,description,category,budget,experience_level,deadline,location,id]
+        );
+        res.json({success:true,message:"Job updated successfully",job:updatedJob.rows[0]});
+    }catch(error){
+        console.log(error);
+        res.status(500).json({success:false,message:"Server Error"});
+    }
+};
+exports.deleteJob = async (req,res)=>{
+    try{
+        const clientId=req.user.id;
+        const {id}=req.params;
+        const job=await pool.query(
+            `SELECT *
+            FROM jobs
+            WHERE id=$1
+            AND client_id=$2
+            `,[id,clientId]
+        );
+        if(job.rows.length===0){
+            return res.status(404).json({success:false,message:"Job Not Found"});
+        }
+        await pool.query(
+            `DELETE FROM jobs
+            WHERE id=$1
+            `,[id]
+        );
+        res.json({success:true,message:"Job Deleted Successfully"});
+    }
+    catch(error){
+        console.log(error);
+        res.status(500).json({success:false,message:"Server Error"});
+    }
+
+};
+exports.getDashboardStats = async (req, res) => {
+    try {
+        const clientId = req.user.id;
+        const openJobs = await pool.query(
+            `SELECT COUNT(*) FROM jobs
+             WHERE client_id=$1
+             AND status='Open'`,
+            [clientId]
+        );
+        const closedJobs = await pool.query(
+            `SELECT COUNT(*) FROM jobs
+             WHERE client_id=$1
+             AND status='Closed'`,
+            [clientId]
+        );
+        const proposals = await pool.query(
+            `SELECT COUNT(*)
+             FROM proposals
+             JOIN jobs
+             ON proposals.job_id=jobs.id
+             WHERE jobs.client_id=$1`,
+            [clientId]
+        );
+        const accepted = await pool.query(
+            `SELECT COUNT(*)
+             FROM proposals
+             JOIN jobs
+             ON proposals.job_id=jobs.id
+             WHERE jobs.client_id=$1
+             AND proposals.status='Accepted'`,
+            [clientId]
+        );
+        res.json({
+            success: true,
+            stats: {
+                openJobs: Number(openJobs.rows[0].count),
+                closedJobs: Number(closedJobs.rows[0].count),
+                proposals: Number(proposals.rows[0].count),
+                accepted: Number(accepted.rows[0].count)
+            }
         });
     } catch (error) {
         console.log(error);

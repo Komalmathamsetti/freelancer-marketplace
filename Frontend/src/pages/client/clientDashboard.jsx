@@ -13,7 +13,7 @@ import {
   ChevronRight,
   User
 } from "lucide-react";
-import { getMyJobs } from "../../services/jobServices";
+import { getMyJobs,getDashboardStats } from "../../services/jobServices";
 const clientItems = [
   { label: "Dashboard", icon: LayoutDashboard, active: true },
   { label: "Company Profile", icon: User},
@@ -57,6 +57,8 @@ function Sidebar({ items, title, subtitle, sidebarOpen, setSidebarOpen,handleLog
                         }
                         else if(item.label === "Post Job"){
                           navigate("/client/post-job");
+                        }else if(item.label === "My Jobs"){
+                          navigate("/client/my-jobs");
                         }else if(item.label === "Logout"){
                           handleLogout();
                         }
@@ -125,6 +127,12 @@ export default function ClientDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const user = JSON.parse(localStorage.getItem("user"));
   const [jobs, setJobs] = useState([]);
+  const [stats, setStats] = useState({
+    openJobs:0,
+    closedJobs:0,
+    proposals:0,
+    accepted:0
+  });
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     const loadJobs = async () => {
@@ -151,6 +159,33 @@ export default function ClientDashboard() {
      localStorage.removeItem("user");
      navigate("/login");
     };
+    useEffect(() => {
+    let ignore = false;
+    async function loadDashboard() {
+        try {
+            const statsResponse = await getDashboardStats();
+            const jobsResponse = await getMyJobs();
+            if (!ignore) {
+                if (statsResponse.data.success) {
+                    setStats(statsResponse.data.stats);
+                }
+                if (jobsResponse.data.success) {
+                    setJobs(jobsResponse.data.jobs);
+                }
+            }
+        } catch (error) {
+            console.log(error);
+        } finally {
+            if (!ignore) {
+                setLoading(false);
+            }
+        }
+    }
+    loadDashboard();
+    return () => {
+        ignore = true;
+    };
+  }, []);
   if(loading){
      return (
         <div className="min-h-screen flex justify-center items-center">
@@ -185,9 +220,10 @@ export default function ClientDashboard() {
 
           <div className="p-4 md:p-6">
             <div className="grid gap-4 md:grid-cols-3">
-              <StatCard label="Open Jobs" value={jobs.length} />
-              <StatCard label="Proposals" value="--" />
-              <StatCard label="Unread Messages" value="0" />
+              <StatCard label="Open Jobs" value={stats.openJobs} />
+              <StatCard label="Proposals" value={stats.proposals} />
+              <StatCard label="Accepted Messages" value={stats.accepted} />
+              <StatCard label="Closed Jobs" value={stats.closedJobs}/>
             </div>
 
             <div className="mt-6 grid gap-6 lg:grid-cols-3">
