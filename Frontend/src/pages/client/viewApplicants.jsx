@@ -64,15 +64,10 @@ export default function ApplicantsPage() {
     const handleAccept = async (id) => {
     try {
         await acceptProposal(id);
-
-        setApplicants((prev) =>
-            prev.map((applicant) =>
-                applicant.id === id
-                    ? { ...applicant, status: "Accepted" }
-                    : applicant
-            )
-        );
-
+        const response = await getApplicants(jobId);
+        if (response.data.success) {
+            setApplicants(response.data.applicants);
+        }
         alert("Proposal Accepted");
     } catch (error) {
         console.log(error);
@@ -81,13 +76,10 @@ export default function ApplicantsPage() {
   const handleReject = async (id) => {
     try {
         await rejectProposal(id);
-        setApplicants((prev) =>
-            prev.map((applicant) =>
-                applicant.id === id
-                    ? { ...applicant, status: "Rejected" }
-                    : applicant
-            )
-        );
+        const response = await getApplicants(jobId);
+        if (response.data.success) {
+            setApplicants(response.data.applicants);
+        }
         alert("Proposal Rejected");
     } catch (error) {
         console.log(error);
@@ -166,14 +158,20 @@ export default function ApplicantsPage() {
                       <Eye className="h-4 w-4" />
                       View Profile
                     </button>
-                    <button onClick={()=>handleAccept(applicant.id)} className="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700">
-                      <CheckCircle2 className="h-4 w-4" />
-                      Accept Proposal
-                    </button>
-                    <button onClick={()=>handleReject(applicant.id)} className="inline-flex items-center gap-2 rounded-2xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700">
-                      <XCircle className="h-4 w-4" />
-                      Reject Proposal
-                    </button>
+                     {applicant.status === "Pending" ? (
+                    <>
+                      <button onClick={() => handleAccept(applicant.id)} className="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700">
+                        <CheckCircle2 className="h-4 w-4" />Accept Proposal
+                      </button>
+                      <button onClick={() => handleReject(applicant.id)} className="inline-flex items-center gap-2 rounded-2xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-700">
+                        <XCircle className="h-4 w-4" />Reject Proposal
+                      </button>
+                    </>
+                    ) : applicant.status === "Accepted" ? (
+                    <button disabled className="rounded-2xl bg-green-600 px-5 py-3 font-semibold text-white cursor-not-allowed">✓ Accepted</button>
+                    ) : (
+                    <button disabled className="rounded-2xl bg-red-600 px-5 py-3 font-semibold text-white cursor-not-allowed">✕ Rejected</button>
+                  )}
                   </div>
                 </div>
               </div>
