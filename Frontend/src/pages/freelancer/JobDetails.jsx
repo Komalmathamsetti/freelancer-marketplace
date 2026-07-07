@@ -101,7 +101,19 @@ export default function JobDetailsPage() {
         </div>
 
         <div className="mt-8 flex flex-col gap-4 sm:flex-row">
-          <button onClick={() => setShowModal(true)} className="rounded-2xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700">
+          <button onClick={()=>{
+          const token = localStorage.getItem("token");
+          const user = JSON.parse(localStorage.getItem("user"));
+          if (!token) {
+            alert("Please login as a freelancer to apply.");
+            navigate("/login");
+            return;
+          }
+          if (user.role !== "freelancer") {
+            alert("Only freelancers can apply for jobs.");
+            navigate("/login");
+            return;
+          }setShowModal(true);}} className="rounded-2xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700">
             Apply
           </button>
           <button onClick={() => navigate("/freelancer/jobs")}

@@ -9,8 +9,6 @@ import {
   Briefcase,
   Star,
   Users,
-  CheckCircle,
-  MessageSquare,
   Code,
   Pencil,
   Palette,
@@ -33,6 +31,7 @@ export default function SkillSphereLanding() {
   const [keyword,setKeyword]=useState("");
   const [category,setCategory]=useState("");
   const [location,setLocation]=useState("");
+  const [loading,setLoading] = useState(true);
   useEffect(() => {
     let ignore = false;
     async function loadHomeData(){
@@ -51,6 +50,8 @@ export default function SkillSphereLanding() {
         }
         catch(error){
             console.log(error);
+        }finally{
+          setLoading(false);
         }
     }
     loadHomeData();
@@ -58,13 +59,22 @@ export default function SkillSphereLanding() {
         ignore=true;
     };
   },[]);
-  // Handle scroll for sticky navbar
-  if (typeof window !== 'undefined') {
-    window.addEventListener('scroll', () => {
-      setScrolled(window.scrollY > 10);
-    });
+  useEffect(() => {
+  const handleScroll = () => {
+    setScrolled(window.scrollY > 10);
+  };
+  window.addEventListener("scroll", handleScroll);
+  return () => {
+    window.removeEventListener("scroll", handleScroll);
+  };
+  }, []);
+  if(loading){
+    return(
+    <div className="min-h-screen flex justify-center items-center">
+      <h1 className="text-3xl font-bold">Loading...</h1>
+    </div>
+    );
   }
-
   const stats = [
     { label: 'Active Freelancers', value: '250K+' },
     { label: 'Satisfied Clients', value: '180K+' },
@@ -120,7 +130,7 @@ export default function SkillSphereLanding() {
               <div className="w-10 h-10 bg-linear-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-lg">S</span>
               </div>
-              <span className="font-bold text-xl text-gray-900 hidden sm:inline">
+              <span onClick={()=>navigate("/")} className="font-bold text-xl text-gray-900 hidden sm:inline">
                 SkillSphere
               </span>
             </div>
@@ -130,9 +140,9 @@ export default function SkillSphereLanding() {
               <a href="#home" className="text-gray-700 hover:text-blue-600 transition">
                 Home
               </a>
-              <a href="#jobs" className="text-gray-700 hover:text-blue-600 transition">
+              <button onClick={()=>navigate("/register")} className="text-gray-700 hover:text-blue-600 transition">
                 Browse Jobs
-              </a>
+              </button>
               <a href="#freelancers" className="text-gray-700 hover:text-blue-600 transition">
                 Freelancers
               </a>
@@ -171,9 +181,9 @@ export default function SkillSphereLanding() {
               <a href="#home" className="block px-4 py-2 text-gray-700 hover:text-blue-600">
                 Home
               </a>
-              <a href="#jobs" className="block px-4 py-2 text-gray-700 hover:text-blue-600">
+              <button onClick={()=>navigate("/register")} className="block px-4 py-2 text-gray-700 hover:text-blue-600">
                 Browse Jobs
-              </a>
+              </button>
               <a href="#freelancers" className="block px-4 py-2 text-gray-700 hover:text-blue-600">
                 Freelancers
               </a>
@@ -216,7 +226,7 @@ export default function SkillSphereLanding() {
                 <button onClick={()=>navigate("/register")} className="px-8 py-4 bg-linear-to-r from-blue-600 to-blue-700 text-white rounded-lg font-semibold hover:shadow-xl transition-all transform hover:scale-105">
                   Hire Talent
                 </button>
-                <button onClick={()=>navigate("/jobs")} className="px-8 py-4 border-2 border-blue-600 text-blue-600 rounded-lg font-semibold hover:bg-blue-50 transition-all">
+                <button onClick={()=>navigate("/register")} className="px-8 py-4 border-2 border-blue-600 text-blue-600 rounded-lg font-semibold hover:bg-blue-50 transition-all">
                   Find Work
                 </button>
               </div>
@@ -255,7 +265,7 @@ export default function SkillSphereLanding() {
 
               {/* Category Dropdown */}
               <div className="relative">
-                <select value={category} onChange={(e)=>setCategory(e.target.value)}>
+                <select value={category} onChange={(e)=>setCategory(e.target.value)} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <option value="">All Categories</option>
                     {
                     categories.map((cat)=>(
@@ -280,7 +290,11 @@ export default function SkillSphereLanding() {
 
               {/* Search Button */}
               <button onClick={()=>{
-                navigate(`/jobs?keyword=${keyword}&category=${category}&location=${location}`);
+                const query = new URLSearchParams();
+                if(keyword) query.append("keyword", keyword);
+                if(category) query.append("category", category);
+                if(location) query.append("location", location);
+                navigate(`/jobs?${query.toString()}`);
                 }}className="w-full px-6 py-3 bg-linear-to-r from-blue-600 to-blue-700 text-white rounded-lg font-semibold hover:shadow-lg transition">
                 Search Jobs
               </button>
@@ -299,10 +313,17 @@ export default function SkillSphereLanding() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {categories.map((cat) => {
-              const IconComponent = cat.icon;
+              const icons = {
+                "Web Development": Code,
+                "UI/UX Design": Palette,
+                "Content Writing": Pencil,
+                "Photography": Camera,
+                "Marketing": BarChart3,
+              };
+              const IconComponent = icons[cat.category] || Briefcase;
               return (
                 <div
-                  key={cat.id}
+                  key={cat.category}
                   className="bg-white rounded-xl p-8 shadow-md hover:shadow-xl hover:scale-105 transition-all cursor-pointer border border-gray-100"
                 >
                   <div className="flex items-center justify-between mb-4">
@@ -313,7 +334,7 @@ export default function SkillSphereLanding() {
                       {cat.total_jobs.toLocaleString()} jobs
                     </span>
                   </div>
-                  <h3 className="text-lg font-bold text-gray-900">{cat.name}</h3>
+                  <h3 className="text-lg font-bold text-gray-900">{cat.category}</h3>
                 </div>
               );
             })}
@@ -330,7 +351,9 @@ export default function SkillSphereLanding() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {jobs.map((job) => (
+            {jobs.length===0?
+            <div className="col-span-full text-center text-gray-500">No Jobs Available</div>:
+            jobs.map((job) => (
               <div
                 key={job.id}
                 className="bg-white rounded-xl p-6 shadow-md hover:shadow-xl transition-all border border-gray-100 group"
@@ -345,7 +368,7 @@ export default function SkillSphereLanding() {
                 <div className="space-y-3 mb-6 pb-6 border-b border-gray-200">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Budget</span>
-                    <span className="font-bold text-blue-600">{job.budget}</span>
+                    <span className="font-bold text-blue-600">₹{Number(job.budget).toLocaleString("en-IN")}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Category</span>
@@ -369,7 +392,7 @@ export default function SkillSphereLanding() {
           </div>
 
           <div className="text-center mt-12">
-            <button className="px-8 py-3 border-2 border-blue-600 text-blue-600 rounded-lg font-semibold hover:bg-blue-50 transition inline-flex items-center gap-2">
+            <button onClick={()=>navigate("/jobs")} className="px-8 py-3 border-2 border-blue-600 text-blue-600 rounded-lg font-semibold hover:bg-blue-50 transition inline-flex items-center gap-2">
               View All Jobs <ArrowRight size={20} />
             </button>
           </div>
@@ -385,18 +408,20 @@ export default function SkillSphereLanding() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {freelancers.map((freelancer) => (
+            {freelancers.length===0?
+            <div className="col-span-full text-center">No Freelancers Found</div>:
+            freelancers.map((freelancer) => (
               <div
                 key={freelancer.id}
                 className="bg-white rounded-xl p-8 shadow-md hover:shadow-xl transition-all border border-gray-100 text-center group"
               >
                 <div className="mb-6">
                   <img
-                    src={freelancer.image}
-                    alt={freelancer.full_namename}
+                    src={`https://ui-avatars.com/api/?background=2563eb&color=fff&name=${freelancer.full_name}`}
+                    alt={freelancer.full_name}
                     className="w-20 h-20 rounded-full mx-auto mb-4 group-hover:scale-110 transition"
                   />
-                  <h3 className="text-lg font-bold text-gray-900">{freelancer.name}</h3>
+                  <h3 className="text-lg font-bold text-gray-900">{freelancer.full_name}</h3>
                   <p className="text-sm text-gray-600 mb-4">FreeLancer</p>
                   <div className="flex items-center justify-center gap-1 mb-4">
                     {[...Array(5)].map((_, i) => (
@@ -407,33 +432,26 @@ export default function SkillSphereLanding() {
                       />
                     ))}
                     <span className="text-sm text-gray-600 ml-2">
-                      {freelancer.rating} ({freelancer.reviews} reviews)
+                      5 (0 reviews)
                     </span>
                   </div>
                 </div>
-
                 <div className="mb-6 pb-6 border-b border-gray-200">
                   <div className="flex flex-wrap gap-2 justify-center">
-                    {freelancer.skills.map((skill, idx) => (
-                      <span
-                        key={idx}
-                        className="text-xs font-medium bg-blue-50 text-blue-700 px-3 py-1 rounded-full"
-                      >
-                        {skill}
+                    <span className="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
+                      Available for Work
                       </span>
-                    ))}
                   </div>
                 </div>
-
                 <button className="w-full px-4 py-3 bg-linear-to-r from-blue-600 to-blue-700 text-white rounded-lg font-semibold hover:shadow-lg transition">
-                  Hire Now
+                  View Profile
                 </button>
               </div>
             ))}
           </div>
 
           <div className="text-center mt-12">
-            <button className="px-8 py-3 border-2 border-blue-600 text-blue-600 rounded-lg font-semibold hover:bg-blue-50 transition inline-flex items-center gap-2">
+            <button onClick={()=>navigate("/register")} className="px-8 py-3 border-2 border-blue-600 text-blue-600 rounded-lg font-semibold hover:bg-blue-50 transition inline-flex items-center gap-2">
               Browse All Freelancers <ArrowRight size={20} />
             </button>
           </div>
@@ -535,10 +553,10 @@ export default function SkillSphereLanding() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="px-8 py-4 bg-white text-blue-600 rounded-lg font-semibold hover:shadow-xl transition-all transform hover:scale-105">
+            <button onClick={()=>navigate("/register")} className="px-8 py-4 bg-white text-blue-600 rounded-lg font-semibold hover:shadow-xl transition-all transform hover:scale-105">
               Hire Talent
             </button>
-            <button className="px-8 py-4 border-2 border-white text-white rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-all">
+            <button onClick={()=>navigate("/register")} className="px-8 py-4 border-2 border-white text-white rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-all">
               Become a Freelancer
             </button>
           </div>
@@ -567,24 +585,24 @@ export default function SkillSphereLanding() {
               <h4 className="font-bold text-white mb-4">Quick Links</h4>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <a href="#" className="hover:text-white transition">
+                  <button onClick={()=>navigate("/register")} className="hover:text-white transition">
                     Browse Jobs
-                  </a>
+                  </button>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-white transition">
+                  <button onClick={()=>navigate("/register")} className="hover:text-white transition">
                     Find Freelancers
-                  </a>
+                  </button>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-white transition">
+                  <button onClick={()=>navigate("/register")} cursor:pointer className="hover:text-white transition">
                     Become Freelancer
-                  </a>
+                  </button>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-white transition">
+                  <button onClick={()=>navigate("/register")} className="hover:text-white transition">
                     Pricing
-                  </a>
+                  </button>
                 </li>
               </ul>
             </div>
@@ -621,8 +639,8 @@ export default function SkillSphereLanding() {
               <h4 className="font-bold text-white mb-4">Contact</h4>
               <ul className="space-y-2 text-sm">
                 <li>Email: support@skillsphere.com</li>
-                <li>Phone: +1 (555) 123-4567</li>
-                <li>Address: 123 Tech Street, SF CA 94105</li>
+                <li>Phone: 8885489886</li>
+                <li>Address: IIIT SRICITY,Chitoor District,517646</li>
               </ul>
             </div>
 
@@ -649,7 +667,7 @@ export default function SkillSphereLanding() {
           {/* Divider */}
           <div className="border-t border-gray-800 pt-8">
             <div className="flex flex-col md:flex-row justify-between items-center text-sm text-gray-400">
-              <p>&copy; 2024 SkillSphere. All rights reserved.</p>
+              <p>&copy; {new Date().getFullYear()} SkillSphere. All rights reserved.</p>
               <div className="flex gap-6 mt-4 md:mt-0">
                 <a href="#" className="hover:text-white transition">
                   Privacy Policy
