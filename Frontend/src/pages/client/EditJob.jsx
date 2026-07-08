@@ -101,13 +101,13 @@ export default function EditJobPage() {
 
             <div>
               <label className="mb-2 block text-sm font-medium">Category</label>
-              <select name="Category" value={job.category} onChange={handleChange} className="w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100">
-                <option value="UI/UX Design">UI/UX Design</option>
-                <option value="Web Development">Web Development</option>
-                <option value="Mobile App Development">Mobile App Development</option>
-                <option value="Content Writing">Content Writing</option>
-                <option value="AI/ML">AI/ML</option>
-              </select>
+              <input
+                type="text"
+                name="category"
+                value={job.category}
+                onChange={handleChange}
+                className="w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+              />
             </div>
 
             <div>

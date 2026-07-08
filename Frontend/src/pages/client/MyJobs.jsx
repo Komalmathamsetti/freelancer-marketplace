@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getMyJobs,deleteJob } from "../../services/jobServices";
-
 export default function MyJobsPage() {
   const navigate = useNavigate();
   const [jobs,setJobs] = useState([]);
@@ -64,7 +63,6 @@ export default function MyJobsPage() {
                 Manage all the jobs you have posted.
               </p>
             </div>
-
             <div className="flex flex-col gap-3 sm:flex-row">
               <div className="w-full sm:w-80">
                 <input

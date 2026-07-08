@@ -13,7 +13,7 @@ import {
   AlertTriangle,
   ChevronRight,
 } from "lucide-react";
-
+import { getDashboardStats } from "../../services/adminServices";
 const adminItems = [
   { label: "Users", icon: Users, active: true },
   { label: "Jobs", icon: Briefcase },
@@ -114,6 +114,14 @@ function StatCard({ label, value }) {
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [stats,setStats] = useState({
+    totalUsers:0,
+    totalClients:0,
+    totalFreelancers:0,
+    totalJobs:0,
+    totalProposals:0
+  });
+  const [loading,setLoading] = useState(true);
   const user = JSON.parse(localStorage.getItem("user"));
    useEffect(() => {
     const token = localStorage.getItem("token");
@@ -121,22 +129,50 @@ export default function AdminDashboard() {
         navigate("/login");
       }
     }, [navigate]);
+    useEffect(()=>{
+    let ignore=false;
+    async function loadDashboard(){
+        try{
+            const response=await getDashboardStats();
+            console.log("Full Response:", response);
+           console.log("Response Data:", response.data);
+        console.log("Stats:", response.data.stats);
+            if(!ignore && response.data.success){
+                setStats(response.data.stats);
+            }
+        }
+        catch(error){
+          console.log(error);
+        }
+        finally{
+            if(!ignore){
+              setLoading(false);
+            }
+        }
+    }
+    loadDashboard();
+    return ()=>{
+      ignore=true;
+    };
+    },[]);
     const handleLogout = () => {
      localStorage.removeItem("token");
      localStorage.removeItem("user");
      navigate("/login");
     };
-  const metrics = [
-    { label: "Total Users", value: "2,480" },
-    { label: "Active Jobs", value: "312" },
-    { label: "Payments", value: "$48K" },
-  ];
 
   const reports = [
     { title: "Disputed Payment", status: "Pending Review" },
     { title: "Spam Job Post", status: "Resolved" },
     { title: "Abuse Report", status: "Investigation" },
   ];
+  if(loading){
+    return(
+        <div className="min-h-screen flex justify-center items-center">
+            <h1 className="text-3xl font-bold">Loading Dashboard...</h1>
+        </div>
+    );
+  }
   if(!user){
     return null;
   }
@@ -161,9 +197,9 @@ export default function AdminDashboard() {
 
           <div className="p-4 md:p-6">
             <div className="grid gap-4 md:grid-cols-3">
-              {metrics.map((item) => (
-                <StatCard key={item.label} label={item.label} value={item.value} />
-              ))}
+              <StatCard label="Total Users" value={stats.totalUsers}/>
+              <StatCard label="Total Jobs" value={stats.totalJobs}/>
+              <StatCard label="Total Proposals" value={stats.totalProposals}/>
             </div>
 
             <div className="mt-6 grid gap-6 lg:grid-cols-3">
@@ -180,13 +216,13 @@ export default function AdminDashboard() {
 
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="rounded-2xl bg-blue-50 p-5">
-                    <p className="text-sm text-slate-600">Platform Growth</p>
-                    <h4 className="mt-2 text-3xl font-bold text-blue-600">+18%</h4>
+                    <p className="text-sm text-slate-600">Total Freelancers</p>
+                    <h4 className="mt-2 text-3xl font-bold text-blue-600">{stats.totalFreelancers}</h4>
                     <p className="mt-1 text-sm text-slate-500">Compared to last month</p>
                   </div>
                   <div className="rounded-2xl bg-slate-50 p-5">
-                    <p className="text-sm text-slate-600">Conversion Rate</p>
-                    <h4 className="mt-2 text-3xl font-bold text-slate-800">6.4%</h4>
+                    <p className="text-sm text-slate-600">Total Clients</p>
+                    <h4 className="mt-2 text-3xl font-bold text-slate-800">{stats.totalClients}</h4>
                     <p className="mt-1 text-sm text-slate-500">Applications to hires</p>
                   </div>
                 </div>
@@ -204,10 +240,10 @@ export default function AdminDashboard() {
                 </div>
 
                 <div className="mt-5 space-y-3">
-                  <button className="w-full rounded-xl bg-blue-600 px-4 py-3 font-medium text-white hover:bg-blue-700">
-                    Review Payments
+                  <button onClick={()=>navigate("/admin/jobs")} className="w-full rounded-xl bg-blue-600 px-4 py-3 font-medium text-white hover:bg-blue-700">
+                    Manage Jobs
                   </button>
-                  <button className="w-full rounded-xl border border-slate-200 px-4 py-3 font-medium text-slate-700 hover:bg-slate-50">
+                  <button onClick={()=>navigate("/admin/users")} className="w-full rounded-xl border border-slate-200 px-4 py-3 font-medium text-slate-700 hover:bg-slate-50">
                     Manage Users
                   </button>
                 </div>
