@@ -2,6 +2,7 @@ import { useState,useEffect } from "react";
 import { useNavigate,useParams } from "react-router-dom";
 import { applyJob } from "../../services/proposalServices";
 import { getSingleJob } from "../../services/jobServices";
+import { saveJob } from "../../services/freelancerServices";
 export default function JobDetailsPage() {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -58,6 +59,20 @@ export default function JobDetailsPage() {
         alert(error.response?.data?.message || "Error");
     }
   };
+  const handleSaveJob=async(jobId)=>{
+      try{
+          const response=await saveJob(jobId);
+          alert(response.data.message);
+      }
+      catch(error){
+          if(error.response){
+              alert(error.response.data.message);
+          }
+          else{
+              console.log(error);
+          }
+      }
+    };
   return (
   <>
     <div className="min-h-screen bg-linear-to-br from-blue-50 to-white px-4 py-10">
@@ -115,6 +130,9 @@ export default function JobDetailsPage() {
             return;
           }setShowModal(true);}} className="rounded-2xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700">
             Apply
+          </button>
+          <button onClick={()=>handleSaveJob(job.id)} className="rounded-2xl border border-blue-600 bg-white px-6 py-3 font-semibold text-blue-600 hover:bg-blue-50">
+            Save Job
           </button>
           <button onClick={() => navigate("/freelancer/jobs")}
             className="rounded-2xl border border-blue-200 bg-white px-6 py-3 font-semibold text-blue-700 transition hover:bg-blue-50">

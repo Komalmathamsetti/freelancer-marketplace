@@ -134,6 +134,9 @@ export default function EditFreelancerProfile() {
               <button onClick={handleSubmit} className="w-full rounded-2xl bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-700 sm:w-auto">
                 Save Changes
               </button>
+              <button onClick={()=>navigate("/freelancer/dashboard")} className="w-full rounded-2xl bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-700 sm:w-auto">
+                Cancel
+              </button>
             </div>
           </div>
         </div>

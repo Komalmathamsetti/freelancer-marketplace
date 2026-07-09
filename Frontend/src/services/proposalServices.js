@@ -44,3 +44,10 @@ export const rejectProposal = (proposalId) => {
     },
   });
 };
+export const withdrawApplication = (proposalId) => {
+    return API.delete(`api/proposals/${proposalId}`, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+    });
+};

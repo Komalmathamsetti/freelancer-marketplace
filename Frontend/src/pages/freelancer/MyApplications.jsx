@@ -1,6 +1,6 @@
 import  { useMemo,useState,useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getMyApplications } from "../../services/proposalServices";
+import { getMyApplications,withdrawApplication } from "../../services/proposalServices";
 import {
   Search,
   Filter,
@@ -105,6 +105,24 @@ export default function MyApplicationsPage() {
     accepted: applications.filter(app => app.status === "Accepted").length,
     rejected: applications.filter(app => app.status === "Rejected").length
   };
+  const handleWithdraw = async (proposalId) => {
+    try {
+        console.log("Deleting proposal:", proposalId);
+
+        const response = await withdrawApplication(proposalId);
+
+        alert(response.data.message);
+
+        setApplications(prev =>
+            prev.filter(app => app.id !== proposalId)
+        );
+
+    } catch (error) {
+        console.log(error);
+        console.log(error.response?.data);
+        alert(error.response?.data?.message || "Error withdrawing application");
+    }
+  };
   return (
     <div className="min-h-screen bg-slate-50 px-4 py-8 text-slate-900 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
@@ -190,9 +208,9 @@ export default function MyApplicationsPage() {
                       <Eye className="h-4 w-4" />
                       View Job
                     </button>
-                    <button className="inline-flex items-center gap-2 rounded-2xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-100">
+                    <button onClick={() => handleWithdraw(app.id)} className="inline-flex items-center gap-2 rounded-2xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-100">
                       <XCircle className="h-4 w-4" />
-                      Withdraw Application
+                      Withdraw Application 
                     </button>
                   </div>
                 </div>

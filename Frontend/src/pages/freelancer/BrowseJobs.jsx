@@ -1,7 +1,7 @@
 import { useState,useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAllJobs } from "../../services/jobServices";
-
+import { saveJob } from "../../services/freelancerServices";
 export default function BrowseJobsPage() {
     const navigate = useNavigate();
     const [jobs,setJobs] = useState([]);
@@ -26,6 +26,20 @@ export default function BrowseJobsPage() {
         </h1>
     );
   }
+  const handleSaveJob=async(jobId)=>{
+    try{
+        const response=await saveJob(jobId);
+        alert(response.data.message);
+    }
+    catch(error){
+        if(error.response){
+            alert(error.response.data.message);
+        }
+        else{
+            console.log(error);
+        }
+    }
+  };
   return (
     <div className="min-h-screen bg-linear-to-br from-blue-50 to-white px-4 py-10">
       <div className="mx-auto max-w-7xl">
@@ -75,6 +89,9 @@ export default function BrowseJobsPage() {
 
               <button onClick = {()=> navigate(`/freelancer/jobs/${job.id}`)} className="mt-6 w-full rounded-2xl bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-700">
                 View Details
+              </button>
+              <button onClick={()=>handleSaveJob(job.id)} className="mt-6 w-full rounded-2xl bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-700">
+                Save Job
               </button>
             </div>
           ))}

@@ -187,3 +187,28 @@ exports.rejectProposal = async (req, res) => {
         });
     }
 };
+exports.withdrawApplication = async (req,res)=>{
+    try{
+        const freelancerId=req.user.id;
+        const {proposalId}=req.params;
+        const proposal=await pool.query(
+            `SELECT *
+            FROM proposals
+            WHERE id=$1
+            AND freelancer_id=$2`,[proposalId,freelancerId]
+        );
+        if(proposal.rows.length===0){
+            return res.status(404).json({success:false,message:"Application Not Found"});
+        }
+        await pool.query(
+            `
+            DELETE FROM proposals
+            WHERE id=$1`,[proposalId]
+        );
+        res.json({success:true,message:"Application Withdrawn Successfully"});
+    }
+    catch(error){
+        console.log(error);
+        res.status(500).json({success:false,message:"Server Error"});
+    }
+};

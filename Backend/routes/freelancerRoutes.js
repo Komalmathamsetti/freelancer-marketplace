@@ -1,0 +1,10 @@
+const express = require("express");
+const router = express.Router();
+const verifyToken = require("../middleware/authMiddleware");
+const { getDashboardStats,saveJob,removeJob,getSavedJobs,getRecommendedJobs } = require("../controllers/freelancerController");
+router.get("/dashboard",verifyToken,getDashboardStats);
+router.post("/save/:jobId",verifyToken,saveJob);
+router.delete("/save/:jobId",verifyToken,removeJob);
+router.get("/saved",verifyToken,getSavedJobs);
+router.get("/recommended",verifyToken,getRecommendedJobs);
+module.exports=router;

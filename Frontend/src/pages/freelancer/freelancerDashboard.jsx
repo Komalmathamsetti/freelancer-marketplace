@@ -13,10 +13,42 @@ import {
   LayoutDashboard,
   ChevronRight,
 } from "lucide-react";
-
+import { getDashboardStats,getRecommendedJobs } from "../../services/freelancerServices";
 export default function FreelancerDashboard() {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [stats,setStats] = useState({
+    totalApplications:0,
+    savedJobs:0,
+    recommendedJobs:0
+  });
+  const [jobs,setJobs] = useState([]);
+  const [loading,setLoading] = useState(true);
+  useEffect(()=>{
+    let ignore=false;
+    async function loadDashboard(){
+      try{
+        const [statsResponse,jobsResponse]=await Promise.all([getDashboardStats(),getRecommendedJobs()]);
+        if(!ignore){
+          if(statsResponse.data.success){
+            setStats(statsResponse.data.stats);
+          }
+          if(jobsResponse.data.success){
+            setJobs(jobsResponse.data.jobs.slice(0,3));
+          }
+        }
+      }catch(error){
+        console.log(error);
+      }finally{
+        if(!ignore){
+          setLoading(false);
+        }
+      }
+    }loadDashboard();
+    return()=>{
+      ignore=true;
+    };
+  },[]);
   const user = JSON.parse(localStorage.getItem("user"));
    useEffect(() => {
     const token = localStorage.getItem("token");
@@ -35,21 +67,21 @@ export default function FreelancerDashboard() {
     { label: "Profile", icon: User },
     { label: "Browse Jobs", icon: Briefcase },
     { label:"My Applications", icon:FileText},
-    { label: "My Proposals", icon: FileText },
+    { label: "Saved Jobs", icon: FileText },
     { label: "Messages", icon: MessageSquare },
     { label: "Notifications", icon: Bell },
     { label: "Logout", icon: LogOut },
   ];
-
-  const jobs = [
-    { title: "React Developer", company: "Bluewave Studio", budget: "$1,200", time: "2 days ago" },
-    { title: "Tailwind UI Designer", company: "Nova Labs", budget: "$800", time: "5 days ago" },
-    { title: "Frontend Engineer", company: "Pixel Forge", budget: "$2,500", time: "1 day ago" },
-  ];
+  if(loading){
+    return(
+    <div className="min-h-screen flex justify-center items-center">
+      <h1 className="text-3xl font-bold">Loading Dashboard...</h1>
+    </div>
+    );
+  }
   if(!user){
     return null;
   }
-
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800">
       <div className="flex min-h-screen">
@@ -85,6 +117,8 @@ export default function FreelancerDashboard() {
                           navigate("/freelancer/jobs")
                         }else if(item.label==="My Applications"){
                           navigate("/freelancer/my-applications");
+                        }else if(item.label === "Saved Jobs"){
+                          navigate("/freelancer/saved-jobs");
                         }
                       }}
                      className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left transition ${
@@ -138,26 +172,35 @@ export default function FreelancerDashboard() {
             {/* Stats */}
             <div className="grid gap-4 md:grid-cols-3">
               {[
-                { label: "Active Proposals", value: "12" },
-                { label: "Messages", value: "8" },
-                { label: "Profile Views", value: "324" },
+                {
+                  label: "Applications",
+                  value: stats.totalApplications,
+                  path: "/freelancer/my-applications",
+                },
+                {
+                  label: "Saved Jobs",
+                  value: stats.savedJobs,
+                  path: "/freelancer/saved-jobs",
+                },
+                {
+                  label: "Recommended Jobs",
+                  value: stats.recommendedJobs,
+                  path: "/freelancer/jobs",
+                },
               ].map((stat) => (
-                <div
-                  key={stat.label}
-                  className="rounded-2xl bg-white p-5 shadow-sm border border-slate-200"
-                >
-                  <p className="text-sm text-slate-500">{stat.label}</p>
-                  <h3 className="mt-2 text-3xl font-bold text-blue-600">{stat.value}</h3>
-                </div>
-              ))}
+              <div
+              key={stat.label} onClick={() => navigate(stat.path)} className="cursor-pointer rounded-2xl bg-white p-5 shadow-sm border border-slate-200 transition hover:border-blue-500 hover:shadow-md">
+                <p className="text-sm text-slate-500">{stat.label}</p>
+                <h3 className="mt-2 text-3xl font-bold text-blue-600">{stat.value}</h3>
+              </div>
+            ))}
             </div>
-
             <div className="mt-6 grid gap-6 lg:grid-cols-3">
               {/* Jobs */}
               <section className="lg:col-span-2 rounded-2xl bg-white p-5 shadow-sm border border-slate-200">
                 <div className="mb-4 flex items-center justify-between">
                   <div>
-                    <h3 className="text-xl font-semibold">Browse Jobs</h3>
+                    <h3 className="text-xl font-semibold">Recommended Jobs</h3>
                     <p className="text-sm text-slate-500">Latest opportunities for freelancers</p>
                   </div>
                   <button onClick={() => navigate("/freelancer/jobs")} className="text-sm font-medium text-blue-600">
@@ -174,15 +217,15 @@ export default function FreelancerDashboard() {
                       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                         <div>
                           <h4 className="text-lg font-semibold">{job.title}</h4>
-                          <p className="text-sm text-slate-500">{job.company}</p>
+                          <p className="text-sm text-slate-500">{job.full_name}</p>
                         </div>
                         <div className="flex items-center gap-4">
                           <div className="text-right">
-                            <p className="text-sm font-semibold text-blue-600">{job.budget}</p>
-                            <p className="text-xs text-slate-400">{job.time}</p>
+                            <p className="text-sm font-semibold text-blue-600">₹{Number(job.budget).toLocaleString("en-IN")}</p>
+                            <p className="text-xs text-slate-400">{job.created_at?.split("T")[0]}</p>
                           </div>
-                          <button className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
-                            Apply
+                          <button onClick={()=>navigate(`/freelancer/jobs/${job.id}`)} className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+                            View Job
                           </button>
                         </div>
                       </div>
@@ -200,14 +243,31 @@ export default function FreelancerDashboard() {
                   <p className="mt-3 text-sm text-slate-600">
                     React • Tailwind • UI/UX • Responsive Design
                   </p>
+                  <div className="mt-6 space-y-3">
+                    <div className="flex justify-between">
+                      <span>Applications</span>
+                      <span className="font-semibold">{stats.totalApplications}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Saved Jobs</span>
+                      <span className="font-semibold">{stats.savedJobs}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Recommended Jobs  </span>
+                      <span className="font-semibold">{stats.recommendedJobs}</span>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="mt-6 space-y-3">
                   <button onClick={() => navigate("/freelancer/profile/edit")} className="w-full rounded-xl bg-blue-600 px-4 py-3 font-medium text-white hover:bg-blue-700">
                     Edit Profile
                   </button>
-                  <button className="w-full rounded-xl border border-slate-200 px-4 py-3 font-medium text-slate-700 hover:bg-slate-50">
-                    View Proposals
+                  <button onClick={()=>navigate("/freelancer/my-applications")} className="w-full rounded-xl border border-slate-200 px-4 py-3 font-medium text-slate-700 hover:bg-slate-50">
+                    My applications
+                  </button>
+                  <button onClick={()=>navigate("/freelancer/saved-jobs")} className="w-full rounded-xl border border-blue-600 px-4 py-3 font-medium text-blue-600 hover:bg-blue-50">
+                    Saved Jobs
                   </button>
                 </div>
               </section>
