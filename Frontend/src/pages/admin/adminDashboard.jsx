@@ -15,15 +15,17 @@ import {
 } from "lucide-react";
 import { getDashboardStats } from "../../services/adminServices";
 const adminItems = [
-  { label: "Users", icon: Users, active: true },
+  {label:"Dashboard",icon:BarChart3},
+  { label: "Users", icon: Users},
   { label: "Jobs", icon: Briefcase },
-  { label: "Reports", icon: AlertTriangle },
+  { label: "Proposals", icon: AlertTriangle },
   { label: "Payments", icon: CreditCard },
   { label: "Analytics", icon: BarChart3 },
   { label: "Logout", icon: LogOut },
 ];
 
 function Sidebar({ items, title, subtitle, sidebarOpen, setSidebarOpen, handleLogout }) {
+  const navigate = useNavigate();
   return (
     <aside
       className={`fixed inset-y-0 left-0 z-40 w-72 transform bg-white border-r border-slate-200 shadow-sm transition-transform duration-300 md:static md:translate-x-0 ${
@@ -47,11 +49,30 @@ function Sidebar({ items, title, subtitle, sidebarOpen, setSidebarOpen, handleLo
             return (
               <li key={item.label}>
                 <button
-                      onClick={() => {
-                        if (item.label === "Logout") {
+                     onClick={() => {
+                      switch(item.label){
+                        case "Dashboard":
+                          navigate("/admin/dashboard");
+                          break;
+                        case "Users":
+                          navigate("/admin/users");
+                          break;
+                        case "Jobs":
+                          navigate("/admin/jobs");
+                          break;
+                        case "Proposals":
+                          navigate("/admin/proposals");
+                          break;
+                        case "Analytics":
+                          navigate("/admin/reports");
+                          break;
+                        case "Logout":
                           handleLogout();
-                        }
-                      }}
+                          break;
+                        default:
+                          break;
+                      }
+                    }}
                      className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left transition ${
                      item.active ? "bg-blue-50 text-blue-600": "text-slate-600 hover:bg-slate-100"}`}
                     >
@@ -102,9 +123,9 @@ function Topbar({ title, subtitle, setSidebarOpen }) {
   );
 }
 
-function StatCard({ label, value }) {
+function StatCard({ label, value, onClick }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div pnClicl = {onClick} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <p className="text-sm text-slate-500">{label}</p>
       <h3 className="mt-2 text-3xl font-bold text-blue-600">{value}</h3>
     </div>
@@ -197,9 +218,9 @@ export default function AdminDashboard() {
 
           <div className="p-4 md:p-6">
             <div className="grid gap-4 md:grid-cols-3">
-              <StatCard label="Total Users" value={stats.totalUsers}/>
-              <StatCard label="Total Jobs" value={stats.totalJobs}/>
-              <StatCard label="Total Proposals" value={stats.totalProposals}/>
+              <StatCard label="Total Users" value={stats.totalUsers} onClick={() => navigate("/admin/users")}/>
+              <StatCard label="Total Jobs" value={stats.totalJobs} onClick={() => navigate("/admin/jobs")}/>
+              <StatCard label="Total Proposals" value={stats.totalProposals} onClick={() => navigate("/admin/proposals")}/>
             </div>
 
             <div className="mt-6 grid gap-6 lg:grid-cols-3">
@@ -245,6 +266,12 @@ export default function AdminDashboard() {
                   </button>
                   <button onClick={()=>navigate("/admin/users")} className="w-full rounded-xl border border-slate-200 px-4 py-3 font-medium text-slate-700 hover:bg-slate-50">
                     Manage Users
+                  </button>
+                  <button onClick={() => navigate("/admin/proposals")} className="w-full rounded-xl border border-slate-200 px-4 py-3 font-medium text-slate-700 hover:bg-slate-50">
+                    Manage Proposals
+                  </button>
+                  <button onClick={() => navigate("/admin/reports")} className="w-full rounded-xl border border-slate-200 px-4 py-3 font-medium text-slate-700 hover:bg-slate-50">
+                    View Reports
                   </button>
                 </div>
               </section>

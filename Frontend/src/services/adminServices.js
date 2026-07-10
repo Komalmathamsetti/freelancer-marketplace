@@ -12,5 +12,8 @@ API.interceptors.request.use((config)=>{
 export const getDashboardStats = ()=>API.get("/admin/dashboard");
 export const getAllUsers = ()=>API.get("/admin/users");
 export const getAllJobs = ()=>API.get("/admin/jobs");
-export const deleteUser = (id)=>API.delete(`/admin/users/${id}`)
-export const deleteJob = (id)=>API.delete(`/admin/jobs/${id}`)
+export const getAllProposals = ()=>API.get("/admin/proposals");
+export const deleteProposal = (id)=>API.delete(`/admin/proposals/${id}`);
+export const deleteUser = (id)=>API.delete(`/admin/users/${id}`);
+export const deleteJob = (id)=>API.delete(`/admin/jobs/${id}`);
+export const getPlatformAnalytics = () =>API.get("/admin/analytics");

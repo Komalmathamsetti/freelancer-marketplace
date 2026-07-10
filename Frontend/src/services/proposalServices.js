@@ -51,3 +51,10 @@ export const withdrawApplication = (proposalId) => {
         },
     });
 };
+export const checkApplication = (jobId) => {
+    return API.get(`/api/proposals/check/${jobId}`, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+    });
+};

@@ -59,6 +59,9 @@ export default function EditClientProfile() {
             <p className="mt-1 text-sm text-slate-500">
               Manage your company details in one place.
             </p>
+            <button onClick={() => navigate("/client/dashboard")} className="mb-6 rounded-xl border border-slate-300 px-4 py-2 hover:bg-slate-100">
+              ← Back to Dashboard
+            </button>
           </div>
 
           <div className="px-6 py-8 sm:px-8">

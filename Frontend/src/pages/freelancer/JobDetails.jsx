@@ -1,6 +1,6 @@
 import { useState,useEffect } from "react";
 import { useNavigate,useParams } from "react-router-dom";
-import { applyJob } from "../../services/proposalServices";
+import { applyJob,checkApplication } from "../../services/proposalServices";
 import { getSingleJob } from "../../services/jobServices";
 import { saveJob } from "../../services/freelancerServices";
 export default function JobDetailsPage() {
@@ -13,6 +13,7 @@ export default function JobDetailsPage() {
     bid_amount: "",
     estimated_days: ""
   });
+  const [applicationStatus, setApplicationStatus] = useState(null);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     const fetchJob = async () => {
@@ -25,6 +26,15 @@ export default function JobDetailsPage() {
         }
         finally{
             setLoading(false);
+        }
+        const token = localStorage.getItem("token");
+        if (token) {
+          const res = await checkApplication(id);
+          console.log("Job ID:", id);
+console.log("Response:", res.data);
+          if (res.data.applied) {
+            setApplicationStatus(res.data.status);
+          }
         }
     };
     fetchJob();
@@ -116,27 +126,37 @@ export default function JobDetailsPage() {
         </div>
 
         <div className="mt-8 flex flex-col gap-4 sm:flex-row">
-          <button onClick={()=>{
-          const token = localStorage.getItem("token");
-          const user = JSON.parse(localStorage.getItem("user"));
-          if (!token) {
-            alert("Please login as a freelancer to apply.");
-            navigate("/login");
-            return;
-          }
-          if (user.role !== "freelancer") {
-            alert("Only freelancers can apply for jobs.");
-            navigate("/login");
-            return;
-          }setShowModal(true);}} className="rounded-2xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700">
+          {applicationStatus ? (
+            <button disabled className="rounded-2xl bg-gray-400 px-6 py-3 font-semibold text-white cursor-not-allowed">
+              {applicationStatus}
+            </button>
+            ) : (
+            <button onClick={() => {
+            const token = localStorage.getItem("token");
+            const user = JSON.parse(localStorage.getItem("user"));
+
+            if (!token) {
+                alert("Please login as a freelancer.");
+                navigate("/login");
+                return;
+            }
+
+            if (user.role !== "freelancer") {
+                alert("Only freelancers can apply.");
+                return;
+            }
+
+            setShowModal(true);
+          }}className="rounded-2xl bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700">
             Apply
           </button>
+           )}
           <button onClick={()=>handleSaveJob(job.id)} className="rounded-2xl border border-blue-600 bg-white px-6 py-3 font-semibold text-blue-600 hover:bg-blue-50">
             Save Job
           </button>
           <button onClick={() => navigate("/freelancer/jobs")}
             className="rounded-2xl border border-blue-200 bg-white px-6 py-3 font-semibold text-blue-700 transition hover:bg-blue-50">
-            Back
+            ← Back to Browse Jobs
           </button>
         </div>
       </div>

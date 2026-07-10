@@ -48,6 +48,9 @@ export default function BrowseJobsPage() {
           <p className="mt-2 text-gray-600">
             Explore available opportunities and find the right match.
           </p>
+          <button onClick={() => navigate("/freelancer/dashboard")} className="mb-6 rounded-xl border border-slate-300 px-4 py-2 hover:bg-slate-100">
+            ← Back to Dashboard
+          </button>
         </div>
         {jobs.length === 0 && (
             <div className="text-center text-2xl">No Jobs Available</div>

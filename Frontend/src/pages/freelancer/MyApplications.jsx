@@ -130,6 +130,9 @@ export default function MyApplicationsPage() {
           <p className="text-sm font-medium text-blue-600">Freelancer Marketplace</p>
           <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">My Applications</h1>
           <p className="mt-3 text-slate-500">Track the jobs you have applied for.</p>
+          <button onClick={() => navigate("/freelancer/dashboard")} className="mb-6 rounded-xl border border-slate-300 px-4 py-2 hover:bg-slate-100">
+            ← Back to Dashboard
+          </button>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

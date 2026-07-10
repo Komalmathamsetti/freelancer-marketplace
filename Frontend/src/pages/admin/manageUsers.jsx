@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { getAllUsers, deleteUser } from "../../services/adminServices";
 
 const roleStyles = {
@@ -17,6 +18,7 @@ export default function AdminManageUsersPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("All");
+  const navigate = useNavigate();
   useEffect(() => {
     let ignore = false;
     async function loadUsers() {
@@ -84,6 +86,9 @@ export default function AdminManageUsersPage() {
             <p className="mt-2 text-sm text-slate-500 sm:text-base">
               View and manage all registered users on the platform.
             </p>
+            <button onClick={() => navigate("/admin/dashboard")} className="mb-6 rounded-xl border border-slate-300 px-4 py-2 hover:bg-slate-100">
+              ← Back to Dashboard
+            </button>
           </div>
 
           <div className="flex w-full flex-col gap-3 sm:flex-row lg:w-auto">

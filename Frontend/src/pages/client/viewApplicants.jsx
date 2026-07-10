@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams,useNavigate } from "react-router-dom";
 import {
 Clock3,
 DollarSign,
@@ -45,6 +45,7 @@ export default function ApplicantsPage() {
     const { jobId } = useParams();
     const [applicants,setApplicants]=useState([]);
     const [loading,setLoading]=useState(true);
+    const navigate = useNavigate();
     useEffect(() => {
     const fetchApplicants = async () => {
         try {
@@ -99,6 +100,9 @@ export default function ApplicantsPage() {
           <p className="text-sm font-medium text-blue-600">Freelancer Marketplace</p>
           <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">Applicants</h1>
           <p className="mt-3 text-slate-500">Review freelancer proposals for this job.</p>
+          <button onClick={() => navigate("/client/my-jobs")} className="mb-6 rounded-xl border border-slate-300 px-4 py-2 hover:bg-slate-100">
+            ← Back
+          </button>
         </div>
 
         <div className="grid gap-6">

@@ -114,3 +114,80 @@ exports.deleteJob = async(req,res)=>{
         res.status(500).json({success:false,message:"Server Error"});
     }
 };
+exports.getAllProposals = async(req,res)=>{
+    try{
+        const proposals = await pool.query(
+            `SELECT
+                proposals.*,
+                jobs.title AS job_title,
+                users.full_name AS freelancer_name
+            FROM proposals
+            JOIN jobs
+                ON proposals.job_id = jobs.id
+            JOIN users
+                ON proposals.freelancer_id = users.id
+            ORDER BY proposals.created_at DESC`
+        );
+        res.json({success:true,proposals:proposals.rows});
+    }catch(error){
+        console.log(error);
+        res.status(500).json({success:false,message:"Server Error"});
+    }
+};
+exports.deleteProposal = async(req,res)=>{
+    try{
+        const { id } = req.params;
+        await pool.query(
+            `DELETE FROM proposals WHERE id = $1`,[id]
+        );
+        res.json({success:true,message:"Proposal Deleted Successfully"});
+    }catch(error){
+       console.log(error);
+       res.status(500).json({success:false,message:"Server Error"});
+    }
+};
+exports.getPlatformAnalytics = async (req, res) => {
+    try {
+        const totalUsers = await pool.query(
+            `SELECT COUNT(*) FROM users`
+        );
+        const totalClients = await pool.query(
+            `SELECT COUNT(*) FROM users WHERE role='client'`
+        );
+        const totalFreelancers = await pool.query(
+            `SELECT COUNT(*) FROM users WHERE role='freelancer'`
+        );
+        const totalJobs = await pool.query(
+            `SELECT COUNT(*) FROM jobs`
+        );
+        const totalProposals = await pool.query(
+            `SELECT COUNT(*) FROM proposals`
+        );
+        const accepted = await pool.query(
+            `SELECT COUNT(*) FROM proposals WHERE status='Accepted'`
+        );
+        const pending = await pool.query(
+            `SELECT COUNT(*) FROM proposals WHERE status='Pending'`
+        );
+        const rejected = await pool.query(
+            `SELECT COUNT(*) FROM proposals WHERE status='Rejected'`
+        );
+        res.json({
+            success:true,
+            analytics:{
+                totalUsers:Number(totalUsers.rows[0].count),
+                totalClients:Number(totalClients.rows[0].count),
+                totalFreelancers:Number(totalFreelancers.rows[0].count),
+                totalJobs:Number(totalJobs.rows[0].count),
+                totalProposals:Number(totalProposals.rows[0].count),
+                accepted:Number(accepted.rows[0].count),
+                pending:Number(pending.rows[0].count),
+                rejected:Number(rejected.rows[0].count)
+            }
+        });
+    }
+    catch(error){
+        console.log(error);
+        res.status(500).json({success:false,message:"Server Error"});
+    }
+};

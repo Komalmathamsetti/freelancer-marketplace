@@ -33,6 +33,9 @@ export default function JobPostingPage() {
           <p className="mt-2 text-gray-600">
             Create a job listing and attract the right talent.
           </p>
+          <button onClick={() => navigate("/client/dashboard")} className="mb-6 rounded-xl border border-slate-300 px-4 py-2 hover:bg-slate-100">
+            ← Back to Dashboard
+          </button>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">

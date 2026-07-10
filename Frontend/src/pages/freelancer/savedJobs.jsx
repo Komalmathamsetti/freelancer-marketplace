@@ -69,6 +69,9 @@ export default function SavedJobsPage() {
               <p className="mt-2 max-w-2xl text-sm text-slate-500 sm:text-base">
                 Access all your bookmarked opportunities in one place.
               </p>
+              <button onClick={() => navigate("/freelancer/dashboard")} className="mb-6 rounded-xl border border-slate-300 px-4 py-2 hover:bg-slate-100">
+                ← Back to Dashboard
+              </button>
             </div>
 
             <div className="w-full md:max-w-md">

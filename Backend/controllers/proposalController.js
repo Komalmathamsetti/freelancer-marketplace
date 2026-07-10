@@ -212,3 +212,34 @@ exports.withdrawApplication = async (req,res)=>{
         res.status(500).json({success:false,message:"Server Error"});
     }
 };
+exports.checkApplication = async (req, res) => {
+    try {
+
+        const freelancerId = req.user.id;
+        const { jobId } = req.params;
+        const proposal = await pool.query(
+            `SELECT status
+             FROM proposals
+             WHERE freelancer_id = $1
+             AND job_id = $2`,
+            [freelancerId, jobId]
+        );
+        if (proposal.rows.length > 0) {
+            return res.json({
+                success: true,
+                applied: true,
+                status: proposal.rows[0].status
+            });
+        }
+        res.json({
+            success: true,
+            applied: false
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            success: false,
+            message: "Server Error"
+        });
+    }
+};
