@@ -1,6 +1,7 @@
 import { useState,useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
+  Home,
   Menu,
   Bell,
   Mail,
@@ -15,7 +16,8 @@ import {
 } from "lucide-react";
 import { getMyJobs,getDashboardStats } from "../../services/jobServices";
 const clientItems = [
-  { label: "Dashboard", icon: LayoutDashboard, active: true },
+  {label:"Home",icon: Home },
+  { label: "Dashboard", icon: LayoutDashboard,active:true },
   { label: "Company Profile", icon: User},
   { label: "Post Job", icon: Briefcase },
   { label: "My Jobs", icon: FileText },
@@ -50,15 +52,18 @@ function Sidebar({ items, title, subtitle, sidebarOpen, setSidebarOpen,handleLog
               <li key={item.label}>
                 <button
                       onClick={() => {
-                        if(item.label === "Company Profile"){
+                        if(item.label === "Home"){
+                          navigate("/")
+                        }else if(item.label === "Company Profile"){
                           navigate("/client/profile/edit");
                         }else if(item.label === "Dashboard"){ 
                           navigate("/client/dashboard");
-                        }
-                        else if(item.label === "Post Job"){
+                        }else if(item.label === "Post Job"){
                           navigate("/client/post-job");
                         }else if(item.label === "My Jobs"){
                           navigate("/client/my-jobs");
+                        }else if(item.label === "Proposals"){
+                          navigate("/client/proposals");
                         }else if(item.label === "Logout"){
                           handleLogout();
                         }

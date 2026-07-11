@@ -1,9 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const verifyToken = require("..//middleware/authMiddleware");
-const { createJob, getAllJobs, getSingleJob, getMyJobs,updateJob,deleteJob,getDashboardStats } = require("../controllers/jobController");
+const authorizeRole = require("../middleware/roleMiddleware");
+const { createJob, getAllJobs, getSingleJob, getMyJobs,updateJob,deleteJob,getDashboardStats, getClientJob, closeJob} = require("../controllers/jobController");
 router.post("/", verifyToken, createJob);
 router.get("/", getAllJobs);
+router.get("/client/job/:id",verifyToken,authorizeRole("client"),getClientJob);
+router.put("/client/job/close/:id",verifyToken,authorizeRole("client"),closeJob);
 router.get("/my-jobs",verifyToken,getMyJobs);
 router.get("/dashboard-stats",verifyToken,getDashboardStats);
 router.get("/:id", getSingleJob);

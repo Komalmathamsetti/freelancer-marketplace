@@ -1,6 +1,7 @@
 import { useState,useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
+  Home,
   Menu,
   Bell,
   Mail,
@@ -63,7 +64,8 @@ export default function FreelancerDashboard() {
     };
 
   const menuItems = [
-    { label: "Dashboard", icon: LayoutDashboard, active: true },
+    {label:"Home",icon: Home},
+    { label: "Dashboard", icon: LayoutDashboard,active:true},
     { label: "Profile", icon: User },
     { label: "Browse Jobs", icon: Briefcase },
     { label:"My Applications", icon:FileText},
@@ -109,7 +111,9 @@ export default function FreelancerDashboard() {
                   <li key={item.label}>
                     <button
                       onClick={() => {
-                        if (item.label === "Logout") {
+                        if(item.label === "Home"){
+                          navigate("/");
+                        }else if (item.label === "Logout") {
                           handleLogout();
                         }else if(item.label === "Profile"){
                           navigate("/freelancer/profile/edit")

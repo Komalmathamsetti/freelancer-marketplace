@@ -16,3 +16,5 @@ export const getMyJobs = () => API.get("/jobs/my-jobs");
 export const updateJob = (id,data)=>API.put(`/jobs/${id}`,data);
 export const deleteJob = (id)=>API.delete(`/jobs/${id}`);
 export const getDashboardStats = ()=>API.get("/jobs/dashboard-stats");
+export const getClientJob = (id) =>API.get(`/jobs/client/job/${id}`);
+export const closeJob = (id) =>API.put(`/jobs/client/job/close/${id}`);

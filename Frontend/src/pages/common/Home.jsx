@@ -14,7 +14,6 @@ import {
   Palette,
   Camera,
   BarChart3,
-  ArrowRight,
   Globe,
   Heart,
   Share2,
@@ -32,6 +31,8 @@ export default function SkillSphereLanding() {
   const [category,setCategory]=useState("");
   const [location,setLocation]=useState("");
   const [loading,setLoading] = useState(true);
+  const [showMenu,setShowMenu] = useState(false);
+  const user = JSON.parse(localStorage.getItem("user"));
   useEffect(() => {
     let ignore = false;
     async function loadHomeData(){
@@ -140,12 +141,6 @@ export default function SkillSphereLanding() {
               <a href="#home" className="text-gray-700 hover:text-blue-600 transition">
                 Home
               </a>
-              <button onClick={()=>navigate("/register")} className="text-gray-700 hover:text-blue-600 transition">
-                Browse Jobs
-              </button>
-              <a href="#freelancers" className="text-gray-700 hover:text-blue-600 transition">
-                Freelancers
-              </a>
               <a href="#about" className="text-gray-700 hover:text-blue-600 transition">
                 About
               </a>
@@ -156,14 +151,49 @@ export default function SkillSphereLanding() {
 
             {/* Desktop Auth Buttons */}
             <div className="hidden md:flex items-center gap-4">
-              <button onClick={()=>navigate("/login")}className="px-6 py-2 text-blue-600 font-medium hover:text-blue-700 transition">
-                Login
-              </button>
-              <button onClick={()=>navigate("/register")} className="px-6 py-2 bg-linear-to-r from-blue-600 to-blue-700 text-white rounded-lg font-medium hover:shadow-lg transition">
-                Register
-              </button>
-            </div>
-
+              {!user ? (
+                <>
+                <button onClick={() => navigate("/login")} className="px-6 py-2 text-blue-600 font-medium hover:text-blue-700 transition">
+                  Login
+                </button>
+                <button onClick={() => navigate("/register")} className="px-6 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">
+                  Register
+                </button>
+                </>
+                ) : (
+                <div className="relative">
+                  <button onClick={() => setShowMenu(!showMenu)} className="h-11 w-11 rounded-full bg-blue-600 text-white font-bold">
+                    {user.full_name.split(" ").map(word=>word[0]).join("").toUpperCase()}
+                  </button>
+                {showMenu && (
+                  <div className="absolute right-0 mt-3 w-56 rounded-xl bg-white shadow-xl border">
+                    <div className="border-b p-4">
+                      <h3 className="font-semibold">{user.full_name}</h3>
+                      <p className="text-sm text-gray-500">{user.email}</p>
+                    </div>
+                    <button className="w-full px-4 py-3 text-left hover:bg-gray-100" onClick={() => {
+                      if(user.role==="freelancer"){
+                        navigate("/freelancer/dashboard");
+                      }else if(user.role==="client"){
+                        navigate("/client/dashboard");
+                      }else{
+                        navigate("/admin/dashboard");
+                      }
+                      setShowMenu(false);
+                      }}>Dashboard
+                      </button>
+                      <button className="w-full px-4 py-3 text-left text-red-600 hover:bg-red-50"
+                      onClick={() => {
+                        localStorage.removeItem("token");
+                        localStorage.removeItem("user");
+                        navigate("/");
+                        window.location.reload();
+                      }}>Logout
+                      </button>
+                    </div>)}
+                    </div>
+                  )}
+                  </div>
             {/* Mobile Menu Button */}
             <div className="md:hidden flex items-center gap-2">
               <button
@@ -181,26 +211,50 @@ export default function SkillSphereLanding() {
               <a href="#home" className="block px-4 py-2 text-gray-700 hover:text-blue-600">
                 Home
               </a>
-              <button onClick={()=>navigate("/register")} className="block px-4 py-2 text-gray-700 hover:text-blue-600">
-                Browse Jobs
-              </button>
-              <a href="#freelancers" className="block px-4 py-2 text-gray-700 hover:text-blue-600">
-                Freelancers
-              </a>
               <a href="#about" className="block px-4 py-2 text-gray-700 hover:text-blue-600">
                 About
               </a>
               <a href="#contact" className="block px-4 py-2 text-gray-700 hover:text-blue-600">
                 Contact
               </a>
-              <div className="px-4 py-3 border-t border-gray-200 flex gap-2">
-                <button onClick={()=>navigate("/login")} className="flex-1 px-4 py-2 text-blue-600 font-medium border border-blue-600 rounded-lg hover:bg-blue-50 transition">
-                  Login
-                </button>
-                <button onClick={()=>navigate("/register")} className="flex-1 px-4 py-2 bg-linear-to-r from-blue-600 to-blue-700 text-white rounded-lg font-medium hover:shadow-lg transition">
-                  Register
-                </button>
-              </div>
+              <div className="px-4 py-3 border-t border-gray-200">
+                {!user ? (
+                  <div className="flex gap-2">
+                    <button onClick={()=>navigate("/login")} className="flex-1 border border-blue-600 rounded-lg py-2 text-blue-600">
+                      Login
+                    </button>
+                    <button onClick={()=>navigate("/register")} className="flex-1 rounded-lg bg-blue-600 py-2 text-white">
+                      Register
+                    </button>
+                  </div>):(
+                    <div className="space-y-2">
+                      <div className="font-semibold">
+                        {user.full_name}
+                      </div>
+                      <button className="w-full rounded-lg border py-2" 
+                        onClick={()=>{
+                          if(user.role==="freelancer"){
+                            navigate("/freelancer/dashboard");
+                          }else if(user.role==="client"){
+                            navigate("/client/dashboard");
+                          }else{
+                            navigate("/admin/dashboard");
+                          }
+                          }}>
+                          Dashboard
+                      </button>
+                      <button className="w-full rounded-lg bg-red-500 py-2 text-white" 
+                        onClick={()=>{
+                          localStorage.removeItem("token");
+                          localStorage.removeItem("user");
+                          navigate("/");
+                          window.location.reload();
+                        }}>
+                          Logout
+                      </button>
+                      </div>
+                    )}
+                  </div>
             </div>
           )}
         </div>
@@ -223,12 +277,7 @@ export default function SkillSphereLanding() {
                 Connect with top-rated professionals across web development, design, marketing, and more. Scale your team, complete your projects on time and on budget.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <button onClick={()=>navigate("/register")} className="px-8 py-4 bg-linear-to-r from-blue-600 to-blue-700 text-white rounded-lg font-semibold hover:shadow-xl transition-all transform hover:scale-105">
-                  Hire Talent
-                </button>
-                <button onClick={()=>navigate("/register")} className="px-8 py-4 border-2 border-blue-600 text-blue-600 rounded-lg font-semibold hover:bg-blue-50 transition-all">
-                  Find Work
-                </button>
+                
               </div>
             </div>
 
@@ -290,11 +339,20 @@ export default function SkillSphereLanding() {
 
               {/* Search Button */}
               <button onClick={()=>{
+                if (!user) {
+                  alert("Please login to search jobs.");
+                  navigate("/login");
+                  return;
+                }
                 const query = new URLSearchParams();
                 if(keyword) query.append("keyword", keyword);
                 if(category) query.append("category", category);
                 if(location) query.append("location", location);
-                navigate(`/jobs?${query.toString()}`);
+                if (user.role === "freelancer") {
+                  navigate(`/freelancer/jobs?${query.toString()}`);
+                } else {
+                  alert("Only freelancers can search jobs.");
+                }
                 }}className="w-full px-6 py-3 bg-linear-to-r from-blue-600 to-blue-700 text-white rounded-lg font-semibold hover:shadow-lg transition">
                 Search Jobs
               </button>
@@ -383,18 +441,8 @@ export default function SkillSphereLanding() {
                     <span className="text-sm font-medium text-orange-600">{job.deadline?.split("T")[0]}</span>
                   </div>
                 </div>
-
-                <button onClick={()=>navigate(`/jobs/${job.id}`)} className="w-full px-4 py-3 bg-linear-to-r from-blue-600 to-blue-700 text-white rounded-lg font-semibold hover:shadow-lg transition">
-                  View Job
-                </button>
               </div>
             ))}
-          </div>
-
-          <div className="text-center mt-12">
-            <button onClick={()=>navigate("/jobs")} className="px-8 py-3 border-2 border-blue-600 text-blue-600 rounded-lg font-semibold hover:bg-blue-50 transition inline-flex items-center gap-2">
-              View All Jobs <ArrowRight size={20} />
-            </button>
           </div>
         </div>
       </section>
@@ -443,17 +491,8 @@ export default function SkillSphereLanding() {
                       </span>
                   </div>
                 </div>
-                <button className="w-full px-4 py-3 bg-linear-to-r from-blue-600 to-blue-700 text-white rounded-lg font-semibold hover:shadow-lg transition">
-                  View Profile
-                </button>
               </div>
             ))}
-          </div>
-
-          <div className="text-center mt-12">
-            <button onClick={()=>navigate("/register")} className="px-8 py-3 border-2 border-blue-600 text-blue-600 rounded-lg font-semibold hover:bg-blue-50 transition inline-flex items-center gap-2">
-              Browse All Freelancers <ArrowRight size={20} />
-            </button>
           </div>
         </div>
       </section>
@@ -551,15 +590,6 @@ export default function SkillSphereLanding() {
           <p className="text-xl text-blue-100 mb-10">
             Join thousands of professionals and businesses on SkillSphere today.
           </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button onClick={()=>navigate("/register")} className="px-8 py-4 bg-white text-blue-600 rounded-lg font-semibold hover:shadow-xl transition-all transform hover:scale-105">
-              Hire Talent
-            </button>
-            <button onClick={()=>navigate("/register")} className="px-8 py-4 border-2 border-white text-white rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-all">
-              Become a Freelancer
-            </button>
-          </div>
         </div>
       </section>
 

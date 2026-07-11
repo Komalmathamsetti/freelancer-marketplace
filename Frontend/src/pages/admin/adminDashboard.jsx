@@ -1,6 +1,7 @@
 import { useState,useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
+  Home,
   Menu,
   Bell,
   Mail,
@@ -12,10 +13,12 @@ import {
   CreditCard,
   AlertTriangle,
   ChevronRight,
+  LayoutDashboard,
 } from "lucide-react";
 import { getDashboardStats } from "../../services/adminServices";
 const adminItems = [
-  {label:"Dashboard",icon:BarChart3},
+  {label:"Home",icon: Home},
+  {label:"Dashboard",icon:LayoutDashboard,active:true},
   { label: "Users", icon: Users},
   { label: "Jobs", icon: Briefcase },
   { label: "Proposals", icon: AlertTriangle },
@@ -51,6 +54,9 @@ function Sidebar({ items, title, subtitle, sidebarOpen, setSidebarOpen, handleLo
                 <button
                      onClick={() => {
                       switch(item.label){
+                        case "Home":
+                          navigate("/");
+                          break;
                         case "Dashboard":
                           navigate("/admin/dashboard");
                           break;

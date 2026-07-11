@@ -19,6 +19,8 @@ import ManageJobs from "./pages/admin/manageJobs";
 import SavedJobs from "./pages/freelancer/savedJobs";
 import ManageProposals from "./pages/admin/managaeProposals";
 import ReportsAnalyticsPage from "./pages/admin/reports";
+import ClientProposals from "./pages/client/clientProposals";
+import ClientJobDetails from "./pages/client/clientJobDetails";
 function App() {
 return (
 <BrowserRouter>
@@ -57,6 +59,14 @@ element={<AdminDashboard />}
 <Route 
   path="/client/edit-job/:id"
   element={<EditJob/>}
+/>
+<Route 
+  path="/client/proposals"
+  element={<ClientProposals/>}
+/>
+<Route
+    path="/client/jobs/:id"
+    element={<ClientJobDetails />}
 />
 <Route 
   path="/admin/users"

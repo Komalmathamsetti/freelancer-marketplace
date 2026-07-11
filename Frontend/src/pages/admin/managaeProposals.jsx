@@ -150,7 +150,7 @@ export default function ProposalManagementPage() {
                   <div className="rounded-2xl bg-gray-50 p-3">
                     <p className="text-gray-500">Estimated Days</p>
                     <p className="mt-1 font-semibold text-gray-900">
-                      {proposal.estimatedDays} Days
+                      {proposal.estimated_days} Days
                     </p>
                   </div>
                   <div className="rounded-2xl bg-gray-50 p-3">

@@ -58,3 +58,10 @@ export const checkApplication = (jobId) => {
         },
     });
 };
+export const getClientProposals = () => {
+    return API.get("/api/proposals/client", {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+    });
+};

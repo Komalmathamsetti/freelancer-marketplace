@@ -243,3 +243,31 @@ exports.checkApplication = async (req, res) => {
         });
     }
 };
+exports.getClientProposals = async (req, res) => {
+    try {
+        const clientId = req.user.id;
+        const proposals = await pool.query(
+            `SELECT
+                proposals.*,
+                jobs.title,
+                jobs.category,
+                jobs.location,
+                jobs.budget,
+                users.full_name,
+                users.email
+            FROM proposals
+            JOIN jobs
+                ON proposals.job_id = jobs.id
+            JOIN users
+                ON proposals.freelancer_id = users.id
+            WHERE jobs.client_id = $1
+            ORDER BY proposals.created_at DESC
+            `,
+            [clientId]
+        );
+        res.json({success: true,proposals: proposals.rows});
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({success: false,message: "Server Error"});
+    }
+};

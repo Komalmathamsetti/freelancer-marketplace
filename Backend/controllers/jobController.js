@@ -192,3 +192,97 @@ exports.getDashboardStats = async (req, res) => {
         });
     }
 };
+exports.getClientJob = async (req, res) => {
+    try {
+
+        const clientId = req.user.id;
+        const { id } = req.params;
+        // Get Job Details
+        const jobResult = await pool.query(
+            `
+            SELECT
+                jobs.*,
+                users.full_name
+            FROM jobs
+            JOIN users
+            ON jobs.client_id = users.id
+            WHERE jobs.id = $1
+            AND jobs.client_id = $2
+            `,
+            [id, clientId]
+        );
+        if (jobResult.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "Job not found"
+            });
+        }
+        // Get Proposal Statistics
+        const stats = await pool.query(
+            `
+            SELECT
+                COUNT(*) AS total,
+                COUNT(*) FILTER (WHERE status='Pending') AS pending,
+                COUNT(*) FILTER (WHERE status='Accepted') AS accepted,
+                COUNT(*) FILTER (WHERE status='Rejected') AS rejected
+            FROM proposals
+            WHERE job_id = $1
+            `,
+            [id]
+        );
+        const job = jobResult.rows[0];
+        job.totalApplicants = Number(stats.rows[0].total);
+        job.pendingApplicants = Number(stats.rows[0].pending);
+        job.acceptedApplicants = Number(stats.rows[0].accepted);
+        job.rejectedApplicants = Number(stats.rows[0].rejected);
+        res.json({
+            success: true,
+            job
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            success: false,
+            message: "Server Error"
+        });
+    }
+};
+exports.closeJob = async (req, res) => {
+    try {
+        const clientId = req.user.id;
+        const { id } = req.params;
+        const job = await pool.query(
+            `
+            SELECT *
+            FROM jobs
+            WHERE id=$1
+            AND client_id=$2
+            `,
+            [id, clientId]
+        );
+        if (job.rows.length === 0) {
+            return res.status(404).json({
+                success:false,
+                message:"Job not found"
+            });
+        }
+        await pool.query(
+            `
+            UPDATE jobs
+            SET status='Closed'
+            WHERE id=$1
+            `,
+            [id]
+        );
+        res.json({
+            success:true,
+            message:"Job Closed Successfully"
+        });
+    } catch(error){
+        console.log(error);
+        res.status(500).json({
+            success:false,
+            message:"Server Error"
+        });
+    }
+};
