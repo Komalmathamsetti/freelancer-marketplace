@@ -191,3 +191,82 @@ exports.getPlatformAnalytics = async (req, res) => {
         res.status(500).json({success:false,message:"Server Error"});
     }
 };
+exports.getRecentActivity = async(req,res)=>{
+    try{
+       const latestUser = await pool.query(
+        `SELECT full_name
+         FROM users
+         ORDER BY id DESC
+         LIMIT 1`
+       );
+       const latestJob = await pool.query(
+        `SELECT title
+         FROM jobs
+         ORDER BY id DESC
+         LIMIT 1`
+       );
+       const latestProposal = await pool.query(
+        `SELECT proposal_text
+         FROM proposals
+         ORDER BY id DESC
+         LIMIT 1`
+       );
+       res.json({
+        success:true,activity:{
+            latestUser:latestUser.rows.length > 0? latestUser.rows[0].full_name: "No Users",
+            latestJob:latestJob.rows.length > 0? latestJob.rows[0].title: "No Jobs",
+            latestProposal:latestProposal.rows.length > 0?latestProposal.rows[0].proposal_text:"No Proposals"
+        }
+       });
+    }catch(error){
+        console.log(error);
+        res.status(500).json({success:false,message:"Server Error"});
+    }
+};
+exports.getPlatformInsights = async (req, res) => {
+    try {
+        const mostActiveUser = await pool.query(`
+            SELECT full_name
+            FROM users
+            ORDER BY id DESC
+            LIMIT 1
+        `);
+        const mostAppliedJob = await pool.query(`
+            SELECT
+                jobs.title,
+                COUNT(proposals.id) AS applications
+            FROM jobs
+            LEFT JOIN proposals
+            ON jobs.id = proposals.job_id
+            GROUP BY jobs.id
+            ORDER BY applications DESC
+            LIMIT 1
+        `);
+        const highestBudgetJob = await pool.query(`
+            SELECT title,budget
+            FROM jobs
+            ORDER BY budget DESC
+            LIMIT 1
+        `);
+        const recentActivity = await pool.query(`
+            SELECT COUNT(*) AS proposals_today
+            FROM proposals
+            WHERE DATE(created_at)=CURRENT_DATE
+        `);
+        res.json({
+            success:true,
+            insights:{
+                mostActiveUser:mostActiveUser.rows[0] || null,
+                mostAppliedJob:mostAppliedJob.rows[0] || null,
+                highestBudgetJob:highestBudgetJob.rows[0] || null,
+                recentActivity:recentActivity.rows[0] || null
+            }
+        });
+    } catch(error){
+        console.log(error);
+        res.status(500).json({
+            success:false,
+            message:"Server Error"
+        });
+    }
+};
