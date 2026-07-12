@@ -104,10 +104,10 @@ export default function ClientJobDetails() {
 
             <div className="flex flex-wrap gap-3">
               <button
-                onClick={() => navigate("/my-jobs")}
+                onClick={() => navigate("/client/proposals")}
                 className="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 transition"
               >
-                Back to My Jobs
+                Back
               </button>
             </div>
           </div>

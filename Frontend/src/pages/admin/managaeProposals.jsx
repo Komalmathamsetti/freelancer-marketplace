@@ -11,6 +11,7 @@ const statusClasses = {
 export default function ProposalManagementPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
+  const [selectedProposal,setSelectedProposal] = useState(null);
   const [proposals,setProposals] = useState([]);
   const [loading,setLoading] = useState(true);
   const navigate = useNavigate();
@@ -176,7 +177,7 @@ export default function ProposalManagementPage() {
                 </div>
 
                 <div className="mt-6 flex gap-3">
-                  <button onClick={()=>alert(proposal.proposal_text)} className="flex-1 rounded-2xl bg-[#2563EB] px-4 py-3 text-sm font-semibold text-white transition duration-300 hover:bg-blue-700">
+                  <button onClick={()=>setSelectedProposal(proposal)} className="flex-1 rounded-2xl bg-[#2563EB] px-4 py-3 text-sm font-semibold text-white transition duration-300 hover:bg-blue-700">
                     View Proposal
                   </button>
                   <button onClick = {()=>handleDelete(proposal.id)} className="flex-1 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-600 transition duration-300 hover:bg-red-100">
@@ -188,6 +189,95 @@ export default function ProposalManagementPage() {
           </div>
         )}
       </div>
+
+      {selectedProposal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+          <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl bg-white shadow-2xl">
+
+            {/* Header */}
+
+            <div className="border-b border-slate-200 p-6">
+              <h2 className="text-3xl font-bold text-slate-900">
+                Proposal Details
+              </h2>
+
+              <p className="mt-1 text-slate-500">
+                Complete proposal submitted by the freelancer.
+              </p>
+            </div>
+            <div className="space-y-6 p-6">
+              <div className="grid gap-5 md:grid-cols-2">
+                <div className="rounded-2xl bg-slate-50 p-5">
+                  <p className="text-sm text-slate-500">
+                    Job Title
+                  </p>
+                  <h3 className="mt-2 text-lg font-semibold">
+                    {selectedProposal.job_title}
+                  </h3>
+                </div>
+                <div className="rounded-2xl bg-slate-50 p-5">
+                  <p className="text-sm text-slate-500">
+                    Freelancer
+                  </p>
+                  <h3 className="mt-2 text-lg font-semibold">
+                    {selectedProposal.freelancer_name}
+                  </h3>
+                </div>
+                <div className="rounded-2xl bg-slate-50 p-5">
+                  <p className="text-sm text-slate-500">
+                    Bid Amount
+                  </p>
+                  <h3 className="mt-2 text-lg font-bold text-blue-600">
+                    ₹{Number(selectedProposal.bid_amount).toLocaleString("en-IN")}
+                  </h3>
+                </div>
+                <div className="rounded-2xl bg-slate-50 p-5">
+                  <p className="text-sm text-slate-500">
+                    Estimated Days
+                  </p>
+                  <h3 className="mt-2 text-lg font-semibold">
+                    {selectedProposal.estimated_days} Days
+                  </h3>
+                </div>
+                <div className="rounded-2xl bg-slate-50 p-5">
+                  <p className="text-sm text-slate-500">
+                    Proposal Date
+                  </p>
+                  <h3 className="mt-2 text-lg font-semibold">
+                    {selectedProposal.created_at?.split("T")[0]}
+                  </h3>
+                </div>
+                <div className="rounded-2xl bg-slate-50 p-5">
+                  <p className="text-sm text-slate-500">
+                    Status
+                  </p>
+                  <span
+                    className={`mt-2 inline-flex rounded-full px-4 py-2 text-sm font-semibold ${statusClasses[selectedProposal.status]}`}
+                  >
+                    {selectedProposal.status}
+                  </span>
+                </div>
+              </div>
+              <div>
+                <h3 className="mb-4 text-xl font-semibold">
+                  Proposal Description
+                </h3>
+                <div className="max-h-72 overflow-y-auto rounded-2xl border border-slate-200 bg-slate-50 p-5 leading-8 whitespace-pre-wrap text-slate-700">
+                  {selectedProposal.proposal_text}
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-end border-t border-slate-200 p-6">
+              <button
+                onClick={() => setSelectedProposal(null)}
+                className="rounded-xl bg-blue-600 px-8 py-3 font-semibold text-white transition hover:bg-blue-700"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

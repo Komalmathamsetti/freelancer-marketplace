@@ -1,5 +1,5 @@
 import { useState,useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,useLocation } from "react-router-dom";
 import {
   Home,
   Menu,
@@ -15,10 +15,10 @@ import {
   ChevronRight,
   LayoutDashboard,
 } from "lucide-react";
-import { getDashboardStats } from "../../services/adminServices";
+import { getDashboardStats,getRecentActivity } from "../../services/adminServices";
 const adminItems = [
   {label:"Home",icon: Home},
-  {label:"Dashboard",icon:LayoutDashboard,active:true},
+  {label:"Dashboard",icon:LayoutDashboard},
   { label: "Users", icon: Users},
   { label: "Jobs", icon: Briefcase },
   { label: "Proposals", icon: AlertTriangle },
@@ -29,6 +29,7 @@ const adminItems = [
 
 function Sidebar({ items, title, subtitle, sidebarOpen, setSidebarOpen, handleLogout }) {
   const navigate = useNavigate();
+  const location = useLocation();
   return (
     <aside
       className={`fixed inset-y-0 left-0 z-40 w-72 transform bg-white border-r border-slate-200 shadow-sm transition-transform duration-300 md:static md:translate-x-0 ${
@@ -79,8 +80,9 @@ function Sidebar({ items, title, subtitle, sidebarOpen, setSidebarOpen, handleLo
                           break;
                       }
                     }}
-                     className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left transition ${
-                     item.active ? "bg-blue-50 text-blue-600": "text-slate-600 hover:bg-slate-100"}`}
+                     className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 transition ${
+                      location.pathname.includes(item.label.toLowerCase())
+                      ? "bg-blue-50 text-blue-600": "text-slate-600 hover:bg-slate-100"}`}
                     >
                   <Icon className="h-5 w-5" />
                   <span className="font-medium">{item.label}</span>
@@ -131,9 +133,14 @@ function Topbar({ title, subtitle, setSidebarOpen }) {
 
 function StatCard({ label, value, onClick }) {
   return (
-    <div pnClicl = {onClick} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div
+      onClick={onClick}
+      className="cursor-pointer rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg"
+    >
       <p className="text-sm text-slate-500">{label}</p>
-      <h3 className="mt-2 text-3xl font-bold text-blue-600">{value}</h3>
+      <h3 className="mt-2 text-3xl font-bold text-blue-600">
+        {value}
+      </h3>
     </div>
   );
 }
@@ -148,6 +155,11 @@ export default function AdminDashboard() {
     totalJobs:0,
     totalProposals:0
   });
+  const [activity, setActivity] = useState({
+    latestUser: "",
+    latestJob: "",
+    latestProposal: ""
+  });
   const [loading,setLoading] = useState(true);
   const user = JSON.parse(localStorage.getItem("user"));
    useEffect(() => {
@@ -161,11 +173,12 @@ export default function AdminDashboard() {
     async function loadDashboard(){
         try{
             const response=await getDashboardStats();
-            console.log("Full Response:", response);
-           console.log("Response Data:", response.data);
-        console.log("Stats:", response.data.stats);
             if(!ignore && response.data.success){
                 setStats(response.data.stats);
+            }
+            const activityResponse = await getRecentActivity();
+            if (activityResponse.data.success) {
+              setActivity(activityResponse.data.activity);
             }
         }
         catch(error){
@@ -189,10 +202,9 @@ export default function AdminDashboard() {
     };
 
   const reports = [
-    { title: "Disputed Payment", status: "Pending Review" },
-    { title: "Spam Job Post", status: "Resolved" },
-    { title: "Abuse Report", status: "Investigation" },
-  ];
+      {title: "Latest User",status: activity.latestUser},
+      {title: "Latest Job",status: activity.latestJob},
+    ];
   if(loading){
     return(
         <div className="min-h-screen flex justify-center items-center">
@@ -236,7 +248,7 @@ export default function AdminDashboard() {
                     <h3 className="text-xl font-semibold">Analytics</h3>
                     <p className="text-sm text-slate-500">Professional marketplace overview</p>
                   </div>
-                  <button className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-50">
+                  <button onClick={()=>window.print()} className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-50">
                     Export
                   </button>
                 </div>
@@ -259,9 +271,9 @@ export default function AdminDashboard() {
                 <h3 className="text-xl font-semibold">Reports</h3>
                 <div className="mt-4 space-y-3">
                   {reports.map((report) => (
-                    <div key={report.title} className="rounded-xl border border-slate-200 p-3">
-                      <p className="font-medium">{report.title}</p>
-                      <p className="text-sm text-slate-500">{report.status}</p>
+                    <div key={report.title} className="rounded-xl border border-slate-200 p-4 bg-slate-50">
+                      <p className="text-sm font-semibold text-slate-500">{report.title}</p>
+                      <p className="mt-2 text-lg font-bold text-slate-900">{report.status}</p>
                     </div>
                   ))}
                 </div>

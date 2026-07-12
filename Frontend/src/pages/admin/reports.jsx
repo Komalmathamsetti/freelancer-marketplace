@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getPlatformAnalytics } from "../../services/adminServices";
-const insights = [
-  { label: "Most Active User", value: "Sarah Johnson", meta: "42 actions this week" },
-  { label: "Most Applied Job", value: "UI/UX Designer for SaaS App", meta: "128 proposals received" },
-  { label: "Highest Budget Job", value: "Enterprise CRM Development", meta: "$18,500 budget" },
-  { label: "Recent Activity", value: "10 new proposals in the last hour", meta: "Marketplace is active" },
-];
-
+import { getPlatformAnalytics,getPlatformInsights } from "../../services/adminServices";
+import{
+  Users,
+  Briefcase,
+  FileText,
+  CheckCircle,
+  Clock,
+  XCircle
+} from "lucide-react";
 export default function ReportsAnalyticsPage() {
   const navigate = useNavigate();
   const [analytics, setAnalytics] = useState({
@@ -20,16 +21,29 @@ export default function ReportsAnalyticsPage() {
     pending:0,
     rejected:0
   });
+  const [insights,setInsights] = useState({
+     mostActiveUser:null,
+     mostAppliedJob:null,
+     highestBudgetJob:null,
+     recentActivity:null
+  });
+  const [lastUpdated,setLastUpdated] = useState("");
   const [loading,setLoading]=useState(true);
   const stats=[
-    {label:"Total Users",value:analytics.totalUsers},
-    {label:"Clients",value:analytics.totalClients},
-    {label:"Freelancers",value:analytics.totalFreelancers},
-    {label:"Jobs",value:analytics.totalJobs},
-    {label:"Proposals",value:analytics.totalProposals},
-    {label:"Accepted",value:analytics.accepted},
-    {label:"Pending",value:analytics.pending},
-    {label:"Rejected",value:analytics.rejected},
+    {label:"Total Users",value:analytics.totalUsers,icon:Users},
+    {label:"Clients",value:analytics.totalClients,icon:Users},
+    {label:"Freelancers",value:analytics.totalFreelancers,icon:Users},
+    {label:"Jobs",value:analytics.totalJobs,icon:Briefcase},
+    {label:"Proposals",value:analytics.totalProposals,icon:FileText},
+    {label:"Accepted",value:analytics.accepted,icon:CheckCircle},
+    {label:"Pending",value:analytics.pending,icon:Clock},
+    {label:"Rejected",value:analytics.rejected,icon:XCircle},
+  ];
+  const insightCards=[
+    {label:"Most Active User",value:insights.mostActiveUser?.full_name || "No Users",meta:"Latest Registered User"},
+    {label:"Most Applied Job",value:insights.mostAppliedJob?.title || "No Jobs",meta:`${insights.mostAppliedJob?.applications || 0} Applications`},
+    {label:"Highest Budget Job",value:insights.highestBudgetJob?.title || "No Jobs",meta:`₹${Number(insights.highestBudgetJob?.budget || 0).toLocaleString("en-IN")}`},
+    {label:"Today's Activity",value:`${insights.recentActivity?.proposals_today || 0} Proposals`,meta:"Submitted Today"}
   ];
   const total = analytics.accepted+analytics.pending+analytics.rejected;
   const proposalSummary=[
@@ -37,23 +51,29 @@ export default function ReportsAnalyticsPage() {
     {label:"Pending",value:total===0?0:Math.round((analytics.pending/total)*100),color:"bg-yellow-100 text-yellow-700"},
     {label:"Rejected",value:total===0?0:Math.round((analytics.rejected/total)*100),color:"bg-red-100 text-red-700"}
   ];
-  useEffect(()=>{
     const loadAnalytics=async()=>{
-        try{
-            const response=await getPlatformAnalytics();
-            if(response.data.success){
-                setAnalytics(response.data.analytics);
-            }
+      try{
+        setLoading(true);
+        const analyticsResponse = await getPlatformAnalytics();
+        if(analyticsResponse.data.success){
+          setAnalytics(analyticsResponse.data.analytics);
         }
-        catch(error){
-            console.log(error);
+        const insightResponse = await getPlatformInsights();
+        if(insightResponse.data.success){
+          setInsights(insightResponse.data.insights);
         }
-        finally{
-            setLoading(false);
-        }
+        setLastUpdated(new Date().toLocaleTimeString());
+      }catch(error){
+        console.log(error);
+      }finally{
+        setLoading(false);
+      }
     };
-    loadAnalytics();
-  },[]);
+    useEffect(()=>{
+      const fetchData = async () => {
+        await loadAnalytics();
+      };fetchData();
+    },[]);
   if(loading){
     return(
         <div className="min-h-screen flex justify-center items-center">
@@ -74,6 +94,9 @@ export default function ReportsAnalyticsPage() {
           <p className="mt-2 text-gray-600">
             Platform statistics and marketplace performance.
           </p>
+          <p className="mt-2 text-sm text-gray-500">
+            Last Updated : {lastUpdated}
+          </p>
           <button onClick={() => navigate("/admin/dashboard")} className="mb-6 rounded-xl border border-slate-300 px-4 py-2 hover:bg-slate-100">
             ← Back to Dashboard
           </button>
@@ -81,17 +104,26 @@ export default function ReportsAnalyticsPage() {
 
         {/* Statistics Cards */}
         <section className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {stats.map((item) => (
-            <div
-              key={item.label}
-              className="rounded-3xl border border-gray-200 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
-            >
-              <p className="text-sm font-medium text-gray-500">{item.label}</p>
-              <p className="mt-3 text-3xl font-bold text-[#2563EB]">
-                {item.value}
-              </p>
+          {stats.map((item)=>{
+            const Icon=item.icon;
+            return(
+            <div key={item.label} className="rounded-3xl border border-gray-200 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="text-sm text-gray-500">
+                    {item.label}
+                  </p>
+                  <h2 className="mt-3 text-3xl font-bold text-blue-600">
+                    {item.value}
+                  </h2>
+                </div>
+              <div className="rounded-full bg-blue-100 p-3">
+                <Icon className="h-6 w-6 text-blue-600"/>
+              </div>
             </div>
-          ))}
+            </div>
+          );
+          })}
         </section>
 
         {/* Proposal Status Summary */}
@@ -108,7 +140,7 @@ export default function ReportsAnalyticsPage() {
                 <div className="flex items-center justify-between">
                   <p className="text-base font-medium text-gray-700">{item.label}</p>
                   <span className={`rounded-full px-3 py-1 text-sm font-semibold ${item.color}`}>
-                    {item.value}%
+                    {item.value}% ({item.label==="Accepted"?analytics.accepted:item.label==="Pending"?analytics.pending:analytics.rejected})
                   </span>
                 </div>
                 <div className="mt-5 h-3 w-full rounded-full bg-gray-100">
@@ -136,7 +168,7 @@ export default function ReportsAnalyticsPage() {
             Platform Insights
           </h2>
           <div className="grid gap-4 lg:grid-cols-2">
-            {insights.map((item) => (
+            {insightCards.map((item) => (
               <div
                 key={item.label}
                 className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
@@ -160,7 +192,7 @@ export default function ReportsAnalyticsPage() {
             <button onClick={()=>window.print()} className="rounded-2xl bg-[#2563EB] px-6 py-3 font-semibold text-white transition-all duration-300 hover:bg-blue-700 hover:shadow-lg">
               Export Report
             </button>
-            <button onClick={()=>window.location.reload()} className="rounded-2xl border border-gray-200 bg-white px-6 py-3 font-semibold text-gray-700 transition-all duration-300 hover:border-blue-300 hover:bg-blue-50">
+            <button onClick={loadAnalytics} className="rounded-2xl border border-gray-200 bg-white px-6 py-3 font-semibold text-gray-700 transition-all duration-300 hover:border-blue-300 hover:bg-blue-50">
               Refresh Analytics
             </button>
           </div>

@@ -281,7 +281,7 @@ export default function ClientDashboard() {
                   <button onClick={()=>navigate("/client/post-job")} className="w-full rounded-xl bg-blue-600 px-4 py-3 font-medium text-white hover:bg-blue-700">
                     Post a New Job
                   </button>
-                  <button className="w-full rounded-xl border border-slate-200 px-4 py-3 font-medium text-slate-700 hover:bg-slate-50">
+                  <button onClick={()=>navigate("/client/proposals")} className="w-full rounded-xl border border-slate-200 px-4 py-3 font-medium text-slate-700 hover:bg-slate-50">
                     Review Proposals
                   </button>
                   <button className="w-full rounded-xl border border-slate-200 px-4 py-3 font-medium text-slate-700 hover:bg-slate-50">

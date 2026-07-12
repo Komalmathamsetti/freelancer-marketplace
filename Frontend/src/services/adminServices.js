@@ -17,3 +17,5 @@ export const deleteProposal = (id)=>API.delete(`/admin/proposals/${id}`);
 export const deleteUser = (id)=>API.delete(`/admin/users/${id}`);
 export const deleteJob = (id)=>API.delete(`/admin/jobs/${id}`);
 export const getPlatformAnalytics = () =>API.get("/admin/analytics");
+export const getRecentActivity = () =>API.get("/admin/recent-activity");
+export const getPlatformInsights = () =>API.get("/admin/insights");
