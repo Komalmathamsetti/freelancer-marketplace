@@ -64,7 +64,10 @@ function Sidebar({ items, title, subtitle, sidebarOpen, setSidebarOpen,handleLog
                           navigate("/client/my-jobs");
                         }else if(item.label === "Proposals"){
                           navigate("/client/proposals");
-                        }else if(item.label === "Logout"){
+                        }else if(item.label === "Messages"){
+                          navigate("/client/messages");
+                        }
+                        else if(item.label === "Logout"){
                           handleLogout();
                         }
                       }}
@@ -284,7 +287,7 @@ export default function ClientDashboard() {
                   <button onClick={()=>navigate("/client/proposals")} className="w-full rounded-xl border border-slate-200 px-4 py-3 font-medium text-slate-700 hover:bg-slate-50">
                     Review Proposals
                   </button>
-                  <button className="w-full rounded-xl border border-slate-200 px-4 py-3 font-medium text-slate-700 hover:bg-slate-50">
+                  <button onClick={()=>navigate("/client/messages")} className="w-full rounded-xl border border-slate-200 px-4 py-3 font-medium text-slate-700 hover:bg-slate-50">
                     Open Messages
                   </button>
                 </div>

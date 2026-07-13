@@ -21,6 +21,7 @@ import ManageProposals from "./pages/admin/managaeProposals";
 import ReportsAnalyticsPage from "./pages/admin/reports";
 import ClientProposals from "./pages/client/clientProposals";
 import ClientJobDetails from "./pages/client/clientJobDetails";
+import MessagingModule from "./pages/common/Messages";
 function App() {
 return (
 <BrowserRouter>
@@ -45,6 +46,10 @@ element={<AdminDashboard />}
   element={<EditFreelancerProfile />}
 />
 <Route
+    path="/freelancer/messages"
+    element={<MessagingModule />}
+/>
+<Route
   path="/client/profile/edit"
   element={<EditClientProfile />}
 />
@@ -67,6 +72,10 @@ element={<AdminDashboard />}
 <Route
     path="/client/jobs/:id"
     element={<ClientJobDetails />}
+/>
+<Route
+    path="/client/messages"
+    element={<MessagingModule />}
 />
 <Route 
   path="/admin/users"

@@ -121,6 +121,8 @@ export default function FreelancerDashboard() {
                           navigate("/freelancer/jobs")
                         }else if(item.label==="My Applications"){
                           navigate("/freelancer/my-applications");
+                        }else if(item.label==="Messages"){
+                          navigate("/freelancer/messages");
                         }else if(item.label === "Saved Jobs"){
                           navigate("/freelancer/saved-jobs");
                         }

@@ -1,7 +1,10 @@
 const express = require('express');
 const cors = require('cors');
 require("dotenv").config();
+const http = require("http");
+const { Server } = require("socket.io");
 const db = require("../Backend/config/db");
+const onlineUsers = new Set();
 const authRoutes = require("./routes/authRoutes");
 const authMiddleware = require("./middleware/authMiddleware");
 const dashBoardRoutes = require("./routes/dashboardRoutes");
@@ -11,7 +14,15 @@ const proposalRoutes = require("./routes/proposalRoutes");
 const homeRoutes = require("./routes/homeRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const freelancerRoutes = require("./routes/freelancerRoutes");
+const messageRoutes = require("./routes/messageRoutes");
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: {
+        origin: "http://localhost:5173",
+        methods: ["GET", "POST"]
+    }
+});
 app.use(cors());
 app.use(express.json());
 app.use("/api/auth",authRoutes);
@@ -22,13 +33,29 @@ app.use("/api/profile",profileRoutes);
 app.use("/api/jobs",jobRoutes);
 app.use("/api/home",homeRoutes);
 app.use("/api/proposals",proposalRoutes);
+app.use("/api/messages",messageRoutes);
 app.get("/api/profile", authMiddleware, (req, res) => {
   res.json({success: true, user: req.user,});
 });
 app.get("/",(req,res)=>{
     res.json({success:true,message:"Freelance marketplace API is running"});
 });
-const PORT = process.env.PORT||5000;
-app.listen(PORT,()=>{
-    console.log(`Server is ruuning on port ${PORT}`);
+app.set("io",io);
+io.on("connection", (socket) => {
+    console.log("User Connected");
+    socket.on("join", (userId) => {
+        socket.userId = userId;
+        socket.join(userId.toString());
+        onlineUsers.add(userId);
+        io.emit("online-users", [...onlineUsers]);
+    });
+    socket.on("disconnect", () => {
+        onlineUsers.delete(socket.userId);
+        io.emit("online-users", [...onlineUsers]);
+        console.log("User Disconnected");
+    });
+});
+const PORT = process.env.PORT || 5000;
+server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
 });
