@@ -15,3 +15,5 @@ export const getConversations = () =>
     API.get("/messages/conversations");
 export const getMessages = (userId) =>
     API.get(`/messages/${userId}`);
+export const deleteMessage = (id)=>
+    API.delete(`/messages/${id}`);

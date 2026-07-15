@@ -114,3 +114,51 @@ exports.getMessages = async (req, res) => {
         });
     }
 };
+exports.deleteMessage = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { id } = req.params;
+        const messageResult = await pool.query(
+            `SELECT *
+             FROM messages
+             WHERE id = $1`,
+            [id]
+        );
+        if (messageResult.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "Message not found"
+            });
+        }
+        if (messageResult.rows[0].sender_id !== userId) {
+            return res.status(403).json({
+                success: false,
+                message: "Unauthorized"
+            });
+        }
+        await pool.query(
+            `DELETE FROM messages
+             WHERE id = $1`,
+            [id]
+        );
+        const io = req.app.get("io");
+        io.to(messageResult.rows[0].sender_id.toString()).emit(
+            "message-deleted",
+            id
+        );
+        io.to(messageResult.rows[0].reciever_id.toString()).emit(
+            "message-deleted",
+            id
+        );
+        res.json({
+            success: true,
+            message: "Message Deleted Successfully"
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            success: false,
+            message: "Server Error"
+        });
+    }
+};

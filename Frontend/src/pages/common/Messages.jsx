@@ -1,6 +1,6 @@
 import { useMemo, useState,useEffect,useRef } from "react";
 import { useParams } from "react-router-dom";
-import { sendMessage as sendMessageAPI,getConversations,getMessages } from "../../services/messageServices";
+import { sendMessage as sendMessageAPI,getConversations,getMessages,deleteMessage } from "../../services/messageServices";
 import socket from "../../socket";
 const Avatar = ({ initials, online }) => (
   <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-100 text-sm font-semibold text-blue-700 ring-4 ring-white">
@@ -61,6 +61,10 @@ const handleSelect = async (id) => {
     setSelectedId(Number(id));
     setMobileChatOpen(true);
     await loadMessages(id);
+    const conversationResponse = await getConversations();
+    if (conversationResponse.data.success) {
+      setConversations(conversationResponse.data.conversations);
+    }
 };
 
 const selectedConversation = conversations.find(
@@ -98,22 +102,40 @@ useEffect(() => {
         }
     };
     fetchConversations();
-}, [currentUser.id, userId]);
-useEffect(() => {
+  }, [currentUser.id, userId]);
+  useEffect(() => {
     socket.on("receive-message", async (newMessage) => {
+    setMessages(prev => {
+        const exists = prev.some(
+            msg => msg.id === newMessage.id
+        );
+        if (exists) return prev;
         if (
             Number(newMessage.sender_id) === Number(selectedId) ||
             Number(newMessage.reciever_id) === Number(selectedId)
         ) {
-          setMessages((prev) => [...prev, newMessage]);
+            return [...prev, newMessage];
         }
-        const response = await getConversations();
-        if (response.data.success) {
-            setConversations(response.data.conversations);
-        }
+        return prev;
+    });
+    const response = await getConversations();
+    if (response.data.success) {
+        setConversations(response.data.conversations);
+    }
+    });
+    socket.on("message-deleted", async(id) => {
+
+    setMessages(prev =>
+        prev.filter(msg => msg.id !== Number(id))
+    );
+    const response = await getConversations();
+    if (response.data.success) {
+        setConversations(response.data.conversations);
+    }
     });
     return () => {
         socket.off("receive-message");
+        socket.off("message-deleted");
     };
 }, [selectedId]);
 useEffect(() => {
@@ -124,23 +146,39 @@ useEffect(() => {
       socket.off("online-users");
     };
 }, []);
-const handleSend = async () => {
+  const handleSend = async () => {
     if (!message.trim() || !selectedConversation) return;
     try {
-        await sendMessageAPI({
-            recieverId: selectedConversation.id,
-            message,
+        const response = await sendMessageAPI({
+          recieverId: selectedConversation.id,
+          message
         });
-        setMessage("");
+        if (response.data.success) {
+          setMessage("");
+        }
     } catch (error) {
-      console.log(error);
+        console.log(error);
     }
   };
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({
-        behavior: "smooth",
-    });
-  }, [messages]);
+  const handleDelete = async (id) => {
+    try { 
+        const response = await deleteMessage(id);
+        if (response.data.success) {
+            setMessages(prev =>
+                prev.filter(msg => msg.id !== id)
+            );
+            const conversationResponse =
+                await getConversations();
+            if (conversationResponse.data.success) {
+                setConversations(
+                    conversationResponse.data.conversations
+                );
+            }
+        }
+    } catch (error) {
+        console.log(error);
+    }
+  };
   return (
     <div className="min-h-screen bg-linear-to-br from-white via-slate-50 to-blue-50 p-4 md:p-6">
       <div className="mx-auto max-w-7xl overflow-hidden rounded-4xl border border-slate-200 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
@@ -266,7 +304,14 @@ const handleSend = async () => {
                             <div key={msg.id} className={`flex ${msg.sender_id === currentUser.id? "justify-end": "justify-start"}`}>
                                 <div className={`max-w-[80%] rounded-[28px] px-4 py-3 shadow-sm md:max-w-[65%]
                                 ${msg.sender_id === currentUser.id? "rounded-br-md bg-blue-600 text-white": "rounded-bl-md bg-white border border-slate-200 text-slate-800"}`}>
-                                    <p>{msg.message}</p>
+                                    <div className="group relative">
+                                      <p>{msg.message}</p>
+                                      {msg.sender_id === currentUser.id && (
+                                        <button onClick={() => handleDelete(msg.id)} className="absolute -top-2 -right-2 hidden group-hover:block rounded-full bg-red-500 px-2 py-1 text-xs text-white">
+                                          🗑
+                                        </button>
+                                      )}
+                                    </div>
                                     <p className={`mt-2 text-xs ${msg.sender_id === currentUser.id? "text-blue-100": "text-slate-400"}`}>
                                         {new Date(msg.created_at).toLocaleTimeString([], {
                                             hour: "2-digit",minute: "2-digit"})}
