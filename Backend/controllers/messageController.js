@@ -162,3 +162,60 @@ exports.deleteMessage = async (req, res) => {
         });
     }
 };
+exports.editMessage = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { id } = req.params;
+        const { message } = req.body;
+        const oldMessage = await pool.query(
+            `
+            SELECT *
+            FROM messages
+            WHERE id=$1
+            `,
+            [id]
+        );
+        if (oldMessage.rows.length === 0) {
+            return res.status(404).json({
+                success:false,
+                message:"Message not found"
+            });
+        }
+        if(oldMessage.rows[0].sender_id!==userId){
+            return res.status(403).json({
+                success:false,
+                message:"Unauthorized"
+            });
+        }
+        const updated = await pool.query(
+            `
+            UPDATE messages
+            SET
+            message=$1,
+            edited=true
+            WHERE id=$2
+            RETURNING *
+            `,
+            [message,id]
+        );
+        const io=req.app.get("io");
+        io.to(updated.rows[0].sender_id.toString()).emit(
+            "message-edited",
+            updated.rows[0]
+        );
+        io.to(updated.rows[0].reciever_id.toString()).emit(
+            "message-edited",
+            updated.rows[0]
+        );
+        res.json({
+            success:true,
+            data:updated.rows[0]
+        });
+    } catch(error){
+        console.log(error);
+        res.status(500).json({
+            success:false,
+            message:"Server Error"
+        });
+    }
+};
