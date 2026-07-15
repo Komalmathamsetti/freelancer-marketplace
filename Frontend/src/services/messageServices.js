@@ -17,3 +17,5 @@ export const getMessages = (userId) =>
     API.get(`/messages/${userId}`);
 export const deleteMessage = (id)=>
     API.delete(`/messages/${id}`);
+export const editMessage = (id, data) =>
+    API.put(`/messages/${id}`, data);
