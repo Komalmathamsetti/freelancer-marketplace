@@ -62,7 +62,8 @@ exports.getMyApplications = async (req, res) => {
                 jobs.title,
                 jobs.category,
                 jobs.location,
-                jobs.budget
+                jobs.budget,
+                jobs.client_id
             FROM proposals
             JOIN jobs
             ON proposals.job_id = jobs.id
@@ -88,6 +89,7 @@ exports.viewApplicants = async (req, res) => {
         const applicants = await pool.query(
             `SELECT
             proposals.*,
+            users.id AS freelancer_id,
             users.full_name,
             users.email
             FROM proposals

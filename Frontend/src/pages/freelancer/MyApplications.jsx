@@ -215,6 +215,9 @@ export default function MyApplicationsPage() {
                       <XCircle className="h-4 w-4" />
                       Withdraw Application 
                     </button>
+                    <button onClick={() =>navigate(`/messages/${app.client_id}`)}className="rounded-xl bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
+                      💬 Chat Client
+                    </button>
                   </div>
                 </div>
               </div>

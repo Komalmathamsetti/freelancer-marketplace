@@ -4,7 +4,6 @@ require("dotenv").config();
 const http = require("http");
 const { Server } = require("socket.io");
 const db = require("../Backend/config/db");
-const onlineUsers = new Set();
 const authRoutes = require("./routes/authRoutes");
 const authMiddleware = require("./middleware/authMiddleware");
 const dashBoardRoutes = require("./routes/dashboardRoutes");
@@ -41,18 +40,22 @@ app.get("/",(req,res)=>{
     res.json({success:true,message:"Freelance marketplace API is running"});
 });
 app.set("io",io);
+const onlineUsers = new Set();
 io.on("connection", (socket) => {
     console.log("User Connected");
-    socket.on("join", (userId) => {
+    socket.on("join",(userId)=>{
         socket.userId = userId;
         socket.join(userId.toString());
         onlineUsers.add(userId);
-        io.emit("online-users", [...onlineUsers]);
+        io.emit("online-users",[...onlineUsers]);
+        console.log(`User ${userId} is online`);
     });
-    socket.on("disconnect", () => {
-        onlineUsers.delete(socket.userId);
-        io.emit("online-users", [...onlineUsers]);
-        console.log("User Disconnected");
+    socket.on("disconnect",()=>{
+        if(socket.userId){
+            onlineUsers.delete(socket.userId);
+            io.emit("online-users",[...onlineUsers]);
+            console.log(`User ${socket.userId} went Offline`);
+        }
     });
 });
 const PORT = process.env.PORT || 5000;

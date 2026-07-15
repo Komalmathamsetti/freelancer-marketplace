@@ -1,4 +1,5 @@
 import { useMemo, useState,useEffect,useRef } from "react";
+import { useParams } from "react-router-dom";
 import { sendMessage as sendMessageAPI,getConversations,getMessages } from "../../services/messageServices";
 import socket from "../../socket";
 const Avatar = ({ initials, online }) => (
@@ -18,63 +19,34 @@ const IconButton = ({ children }) => (
 
 export default function MessagingModule() {
   const [conversations, setConversations] = useState([]);
-  const [selectedId, setSelectedId] = useState(null);
-  const [messages, setMessages] = useState([]);
-  const [search, setSearch] = useState("");
-  const [message, setMessage] = useState("");
-  const [mobileChatOpen, setMobileChatOpen] = useState(false);
-  const [onlineUsers,setOnlineUsers] = useState([]);
-  const [loadingMessages, setLoadingMessages] = useState(false);
-  const currentUser = JSON.parse(localStorage.getItem("user"));
-  const bottomRef = useRef();
-  const filteredConversations = useMemo(() => {
+const [selectedId, setSelectedId] = useState(null);
+const [messages, setMessages] = useState([]);
+const [search, setSearch] = useState("");
+const [message, setMessage] = useState("");
+const [mobileChatOpen, setMobileChatOpen] = useState(false);
+const [onlineUsers, setOnlineUsers] = useState([]);
+const [loadingMessages, setLoadingMessages] = useState(false);
+
+const currentUser = JSON.parse(localStorage.getItem("user"));
+
+const bottomRef = useRef();
+
+const { userId } = useParams();
+
+const filteredConversations = useMemo(() => {
     return conversations.filter((c) =>
-      `${c.full_name} ${c.email} ${c.last_message || "" }`.toLowerCase().includes(search.toLowerCase())
+        `${c.full_name} ${c.email} ${c.last_message || ""}`
+            .toLowerCase()
+            .includes(search.toLowerCase())
     );
-  }, [conversations, search]);
+}, [conversations, search]);
 
-  const selectedConversation = conversations.find(c => c.id === selectedId);
-  useEffect(() => {
-    socket.emit("join",currentUser.id);
-  const fetchConversations = async () => {
-    try {
-      const response = await getConversations();
-
-      if (response.data.success) {
-        setConversations(response.data.conversations);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  fetchConversations();
-  }, [currentUser.id]);
-  useEffect(() => {
-    socket.on("receive-message", async(newMessage) => {
-        console.log("Received Socket:", newMessage);
-        if (
-            Number(newMessage.sender_id) === Number(selectedId) || Number(newMessage.reciever_id) === Number(selectedId)
-        ) {
-            setMessages((prev) => [...prev, newMessage]);
-        }
-        const response = await getConversations();
-        if (response.data.success) {
-            setConversations(response.data.conversations);
-        }});
-    return () => {
-        socket.off("receive-message");
-    };
-  }, [selectedId]);
-  useEffect(() => {
-    socket.on("online-users", (users) => {
-        setOnlineUsers(users);
-    });
-    return () => socket.off("online-users");
-  }, []);
-  const loadMessages = async(userId)=>{
+const loadMessages = async (id) => {
     try {
         setLoadingMessages(true);
-        const response = await getMessages(userId);
+
+        const response = await getMessages(id);
+
         if (response.data.success) {
             setMessages(response.data.messages);
         }
@@ -83,30 +55,90 @@ export default function MessagingModule() {
     } finally {
         setLoadingMessages(false);
     }
-  }
-  const handleSelect = async(id) => {
-    setSelectedId(id);
+};
+
+const handleSelect = async (id) => {
+    setSelectedId(Number(id));
     setMobileChatOpen(true);
     await loadMessages(id);
-  };
-  const handleSend = async () => {
+};
 
-    if (!message.trim() || !selectedConversation) {
-        return;
-    }
+const selectedConversation = conversations.find(
+    (c) => Number(c.id) === Number(selectedId)
+);
+useEffect(() => {
+    socket.emit("join", currentUser.id);
+    const fetchConversations = async () => {
+        try {
+            const response = await getConversations();
+            if (response.data.success) {
+                let conversationList = [...response.data.conversations];
+                if (userId) {
+                    const id = Number(userId);
+                    const exists = conversationList.find(
+                        (c) => Number(c.id) === id
+                    );
+                    if (!exists) {
+                        conversationList.push({
+                            id,
+                            full_name: "New Conversation",
+                            email: "",
+                            last_message: "",
+                            created_at: new Date().toISOString(),
+                        });
+                    }
+                    setSelectedId(id);
+                    setMobileChatOpen(true);
+                    await loadMessages(id);
+                }
+                setConversations(conversationList);
+            }
+        } catch (error) {
+          console.log(error);
+        }
+    };
+    fetchConversations();
+}, [currentUser.id, userId]);
+useEffect(() => {
+    socket.on("receive-message", async (newMessage) => {
+        if (
+            Number(newMessage.sender_id) === Number(selectedId) ||
+            Number(newMessage.reciever_id) === Number(selectedId)
+        ) {
+          setMessages((prev) => [...prev, newMessage]);
+        }
+        const response = await getConversations();
+        if (response.data.success) {
+            setConversations(response.data.conversations);
+        }
+    });
+    return () => {
+        socket.off("receive-message");
+    };
+}, [selectedId]);
+useEffect(() => {
+    socket.on("online-users", (users) => {
+        setOnlineUsers(users);
+    });
+    return () => {
+      socket.off("online-users");
+    };
+}, []);
+const handleSend = async () => {
+    if (!message.trim() || !selectedConversation) return;
     try {
         await sendMessageAPI({
             recieverId: selectedConversation.id,
-            message
+            message,
         });
         setMessage("");
     } catch (error) {
-        console.log(error);
+      console.log(error);
     }
   };
   useEffect(() => {
     bottomRef.current?.scrollIntoView({
-        behavior: "smooth"
+        behavior: "smooth",
     });
   }, [messages]);
   return (
@@ -165,7 +197,7 @@ export default function MessagingModule() {
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between gap-3">
                           <h3 className="truncate font-semibold text-slate-900">{c.full_name}</h3>
-                          <span className="text-xs text-slate-400">{new Date(c.created_at).toLocaleDateString()}</span>
+                          <span className="text-xs text-slate-400">{new Date(c.created_at).toLocaleTimeString([], {hour: "2-digit",minute: "2-digit",})}</span>
                         </div>
                         <div className="mt-1 flex items-center justify-between gap-3">
                           <p className="truncate text-sm text-slate-500">{c.last_message}</p>
@@ -201,8 +233,8 @@ export default function MessagingModule() {
                         <h2 className="truncate text-lg font-semibold text-slate-900">
                           {selectedConversation.full_name}
                         </h2>
-                        <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-600">
-                          {selectedConversation.online ? "Online" : "Offline"}
+                        <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${onlineUsers.includes(selectedConversation.id)? "bg-green-100 text-green-700": "bg-gray-100 text-gray-600"}`}>
+                          {onlineUsers.includes(selectedConversation.id)? "🟢 Online": "⚪ Offline"}
                         </span>
                       </div>
                       <p className="text-sm text-slate-500">{selectedConversation.email}</p>

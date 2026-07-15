@@ -46,10 +46,6 @@ element={<AdminDashboard />}
   element={<EditFreelancerProfile />}
 />
 <Route
-    path="/freelancer/messages"
-    element={<MessagingModule />}
-/>
-<Route
   path="/client/profile/edit"
   element={<EditClientProfile />}
 />
@@ -74,7 +70,7 @@ element={<AdminDashboard />}
     element={<ClientJobDetails />}
 />
 <Route
-    path="/client/messages"
+    path="/messages/:userId?"
     element={<MessagingModule />}
 />
 <Route 

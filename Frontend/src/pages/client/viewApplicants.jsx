@@ -100,7 +100,7 @@ export default function ApplicantsPage() {
           <p className="text-sm font-medium text-blue-600">Freelancer Marketplace</p>
           <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">Applicants</h1>
           <p className="mt-3 text-slate-500">Review freelancer proposals for this job.</p>
-          <button onClick={() => navigate(`/client/jobs/${jobId}`)} className="mb-6 rounded-xl border border-slate-300 px-4 py-2 hover:bg-slate-100">
+          <button onClick={() => navigate(`/client/dashboard`)} className="mb-6 rounded-xl border border-slate-300 px-4 py-2 hover:bg-slate-100">
             ← Back
           </button>
         </div>
@@ -176,6 +176,9 @@ export default function ApplicantsPage() {
                     ) : (
                     <button disabled className="rounded-2xl bg-red-600 px-5 py-3 font-semibold text-white cursor-not-allowed">✕ Rejected</button>
                   )}
+                  <button onClick={() =>navigate(`/messages/${applicant.freelancer_id}`)}className="rounded-xl bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
+                    💬 Chat
+                  </button>
                   </div>
                 </div>
               </div>
