@@ -1,6 +1,6 @@
 import { useMemo, useState,useEffect,useRef } from "react";
 import { useParams } from "react-router-dom";
-import { sendMessage as sendMessageAPI,getConversations,getMessages,deleteMessage } from "../../services/messageServices";
+import { sendMessage as sendMessageAPI,getConversations,getMessages,deleteMessage,editMessage } from "../../services/messageServices";
 import socket from "../../socket";
 const Avatar = ({ initials, online }) => (
   <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-100 text-sm font-semibold text-blue-700 ring-4 ring-white">
@@ -16,17 +16,20 @@ const IconButton = ({ children }) => (
     {children}
   </button>
 );
-
 export default function MessagingModule() {
   const [conversations, setConversations] = useState([]);
-const [selectedId, setSelectedId] = useState(null);
-const [messages, setMessages] = useState([]);
-const [search, setSearch] = useState("");
-const [message, setMessage] = useState("");
-const [mobileChatOpen, setMobileChatOpen] = useState(false);
-const [onlineUsers, setOnlineUsers] = useState([]);
-const [loadingMessages, setLoadingMessages] = useState(false);
-
+  const [selectedId, setSelectedId] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [search, setSearch] = useState("");
+  const [message, setMessage] = useState("");
+  const [editingId,setEditingId] = useState(null);
+  const [editText,setEditText] = useState("");
+  const [mobileChatOpen, setMobileChatOpen] = useState(false);
+  const [onlineUsers, setOnlineUsers] = useState([]);
+  const [loadingMessages, setLoadingMessages] = useState(false);
+  const [menuOpen,setMenuOpen] = useState(null);
+  const [typingUser,setTypingUser] = useState(null);
+  const typingTimeout = useRef(null);
 const currentUser = JSON.parse(localStorage.getItem("user"));
 
 const bottomRef = useRef();
@@ -118,11 +121,6 @@ useEffect(() => {
         }
         return prev;
     });
-    const response = await getConversations();
-    if (response.data.success) {
-        setConversations(response.data.conversations);
-    }
-    });
     socket.on("message-deleted", async(id) => {
 
     setMessages(prev =>
@@ -133,19 +131,40 @@ useEffect(() => {
         setConversations(response.data.conversations);
     }
     });
+    socket.on("message-edited",(updatedMessage)=>{
+       setMessages(prev =>
+        prev.map(msg =>
+            msg.id === updatedMessage.id
+                ? updatedMessage
+                : msg
+        )
+    );
+    });
+    socket.on("user-typing", (senderId) => {
+      console.log("Typing from:", senderId);
+      setTypingUser(senderId);
+    });
+    socket.on("user-stop-typing", () => {
+      console.log("Stopped typing");
+      setTypingUser(null);
+    });
     return () => {
         socket.off("receive-message");
         socket.off("message-deleted");
+        socket.off("message-edited");
+        socket.off("user-typing");
+        socket.off("user-stop-typing");
     };
-}, [selectedId]);
-useEffect(() => {
+  }, [selectedId]);
+  });
+  useEffect(() => {
     socket.on("online-users", (users) => {
         setOnlineUsers(users);
     });
     return () => {
       socket.off("online-users");
     };
-}, []);
+  }, []);
   const handleSend = async () => {
     if (!message.trim() || !selectedConversation) return;
     try {
@@ -155,6 +174,10 @@ useEffect(() => {
         });
         if (response.data.success) {
           setMessage("");
+          socket.emit("stop-typing",{
+            senderId:currentUser.id,
+            receiverId:selectedConversation.id
+        });
         }
     } catch (error) {
         console.log(error);
@@ -177,6 +200,18 @@ useEffect(() => {
         }
     } catch (error) {
         console.log(error);
+    }
+  };
+  const handleEdit = async(id)=>{
+    if(!editText.trim()) return;
+    try{
+        await editMessage(id,{
+          message: editText
+        });
+        setEditingId(null);
+        setEditText("");
+    }catch(error){
+      console.log(error);
     }
   };
   return (
@@ -275,7 +310,15 @@ useEffect(() => {
                           {onlineUsers.includes(selectedConversation.id)? "🟢 Online": "⚪ Offline"}
                         </span>
                       </div>
-                      <p className="text-sm text-slate-500">{selectedConversation.email}</p>
+                      {Number(typingUser)===Number(selectedConversation.id) ? (
+                        <p className="text-sm text-green-600 animate-pulse">
+                          Typing...
+                        </p>
+                        ):(
+                        <p className="text-sm text-slate-500">
+                          {selectedConversation.email}
+                        </p>
+                      )}
                     </div>
 
                     <div className="hidden gap-2 md:flex">
@@ -305,12 +348,47 @@ useEffect(() => {
                                 <div className={`max-w-[80%] rounded-[28px] px-4 py-3 shadow-sm md:max-w-[65%]
                                 ${msg.sender_id === currentUser.id? "rounded-br-md bg-blue-600 text-white": "rounded-bl-md bg-white border border-slate-200 text-slate-800"}`}>
                                     <div className="group relative">
-                                      <p>{msg.message}</p>
-                                      {msg.sender_id === currentUser.id && (
-                                        <button onClick={() => handleDelete(msg.id)} className="absolute -top-2 -right-2 hidden group-hover:block rounded-full bg-red-500 px-2 py-1 text-xs text-white">
-                                          🗑
-                                        </button>
-                                      )}
+                                       {editingId === msg.id ? (
+                                        <div className="space-y-2">
+                                          <textarea value={editText} onChange={(e) => setEditText(e.target.value)} className="w-full rounded-lg border p-2 text-black"rows={2}/>
+                                            <div className="flex gap-2">
+                                              <button onClick={() => handleEdit(msg.id)} className="rounded bg-green-600 px-3 py-1 text-white">
+                                                Save
+                                              </button>
+                                              <button onClick={() => {setEditingId(null); setEditText("");}} className="rounded bg-gray-500 px-3 py-1 text-white">
+                                                Cancel
+                                              </button>
+                                            </div>
+                                          </div>
+                                          ) : (
+                                          <p>{msg.message}
+                                          {msg.edited && (
+                                            <span className="ml-2 text-xs italic">(edited)</span>)}</p>
+                                          )}
+                                      {Number(msg.sender_id) === Number(currentUser.id) && (
+                                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition">
+                                          <button onClick={() =>setMenuOpen(menuOpen === msg.id ? null : msg.id)} className="rounded-full p-1 hover:bg-pink-200">
+                                            ⋮
+                                          </button>
+                                          {menuOpen === msg.id && (
+                                            <div className="absolute right-0 mt-2 w-36 rounded-xl bg-white shadow-xl border z-50">
+                                              <button onClick={() => {
+                                                setEditingId(msg.id);
+                                                setEditText(msg.message);
+                                                setMenuOpen(null);
+                                              }}className="block w-full px-4 py-2 text-left text-green-600 hover:bg-gray-100">
+                                                ✏️ Edit
+                                              </button>
+                                              <button onClick={() => {
+                                                handleDelete(msg.id);
+                                                setMenuOpen(null);
+                                              }}className="block w-full px-4 py-2 text-left text-red-600 hover:bg-red-50">
+                                                🗑 Delete
+                                              </button>
+                                            </div>
+                                          )}
+                                          </div>
+                                        )}
                                     </div>
                                     <p className={`mt-2 text-xs ${msg.sender_id === currentUser.id? "text-blue-100": "text-slate-400"}`}>
                                         {new Date(msg.created_at).toLocaleTimeString([], {
@@ -343,7 +421,20 @@ useEffect(() => {
                             e.preventDefault();
                             handleSend();
                         }}}
-                      onChange={(e) => setMessage(e.target.value)}
+                      onChange={(e) => {
+                        setMessage(e.target.value);
+                        socket.emit("typing", {
+                          senderId: currentUser.id,
+                          receiverId: selectedConversation.id
+                        });
+                        clearTimeout(typingTimeout.current);
+                        typingTimeout.current = setTimeout(() => {
+                          socket.emit("stop-typing", {
+                            senderId: currentUser.id,
+                            receiverId: selectedConversation.id
+                          });
+                        }, 1000);
+                      }}
                       placeholder="Write a message..."
                       rows={1}
                       className="max-h-32 flex-1 resize-none bg-transparent px-2 py-2 text-sm outline-none placeholder:text-slate-400"

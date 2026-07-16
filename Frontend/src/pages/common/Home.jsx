@@ -1,5 +1,5 @@
 import { useState,useEffect } from 'react';
-import { useNavigate } from "react-router-dom";
+import { Link,useNavigate } from "react-router-dom";
 import { getFeaturedFreelancers,getCategories,getFeaturedJobs } from '../../services/homeServices';
 import {
   Menu,
@@ -33,6 +33,35 @@ export default function SkillSphereLanding() {
   const [loading,setLoading] = useState(true);
   const [showMenu,setShowMenu] = useState(false);
   const user = JSON.parse(localStorage.getItem("user"));
+  const handleQuickLink = (type) => {
+
+    // User not logged in
+    if (!user) {
+        navigate("/login");
+        return;
+    }
+    switch (type) {
+        case "jobs":
+            if (user.role === "freelancer") {
+                navigate("/freelancer/jobs");
+            } else {
+                navigate("/client/post-job");
+            }
+            break;
+        case "become":
+            if (user.role === "freelancer") {
+                navigate("/freelancer/dashboard");
+            } else {
+                navigate("/register");
+            }
+            break;
+        case "pricing":
+            navigate("/");
+            break;
+        default:
+            navigate("/");
+    }
+  };
   useEffect(() => {
     let ignore = false;
     async function loadHomeData(){
@@ -138,7 +167,7 @@ export default function SkillSphereLanding() {
 
             {/* Desktop Menu */}
             <div className="hidden md:flex items-center gap-8">
-              <a href="#home" className="text-gray-700 hover:text-blue-600 transition">
+              <a href="#" className="text-gray-700 hover:text-blue-600 transition">
                 Home
               </a>
               <a href="#about" className="text-gray-700 hover:text-blue-600 transition">
@@ -211,9 +240,9 @@ export default function SkillSphereLanding() {
               <a href="#home" className="block px-4 py-2 text-gray-700 hover:text-blue-600">
                 Home
               </a>
-              <a href="#about" className="block px-4 py-2 text-gray-700 hover:text-blue-600">
+              <Link href="/about" className="block px-4 py-2 text-gray-700 hover:text-blue-600">
                 About
-              </a>
+              </Link>
               <a href="#contact" className="block px-4 py-2 text-gray-700 hover:text-blue-600">
                 Contact
               </a>
@@ -615,22 +644,17 @@ export default function SkillSphereLanding() {
               <h4 className="font-bold text-white mb-4">Quick Links</h4>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <button onClick={()=>navigate("/register")} className="hover:text-white transition">
+                  <button onClick={()=>handleQuickLink("jobs")} className="hover:text-white transition">
                     Browse Jobs
                   </button>
                 </li>
                 <li>
-                  <button onClick={()=>navigate("/register")} className="hover:text-white transition">
-                    Find Freelancers
-                  </button>
-                </li>
-                <li>
-                  <button onClick={()=>navigate("/register")} cursor:pointer className="hover:text-white transition">
+                  <button onClick={()=>handleQuickLink("become")} cursor:pointer className="hover:text-white transition">
                     Become Freelancer
                   </button>
                 </li>
                 <li>
-                  <button onClick={()=>navigate("/register")} className="hover:text-white transition">
+                  <button onClick={()=> handleQuickLink("pricing")} className="hover:text-white transition">
                     Pricing
                   </button>
                 </li>

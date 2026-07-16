@@ -22,6 +22,8 @@ import ReportsAnalyticsPage from "./pages/admin/reports";
 import ClientProposals from "./pages/client/clientProposals";
 import ClientJobDetails from "./pages/client/clientJobDetails";
 import MessagingModule from "./pages/common/Messages";
+import About from "./pages/common/About";
+import ContactUsPage from "./pages/common/ContactUs";
 function App() {
 return (
 <BrowserRouter>
@@ -29,6 +31,8 @@ return (
 <Route path="/" element={<Home />} />
 <Route path="/login" element={<Login />} />
 <Route path="/register" element={<Register />} />
+<Route path="/about" element={<About />}/>
+<Route path="/contact" element={<ContactUsPage />} />
 <Route
 path="/freelancer/dashboard"
 element={<FreelancerDashboard />}

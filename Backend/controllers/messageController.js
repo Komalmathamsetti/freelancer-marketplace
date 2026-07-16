@@ -168,11 +168,9 @@ exports.editMessage = async (req, res) => {
         const { id } = req.params;
         const { message } = req.body;
         const oldMessage = await pool.query(
-            `
-            SELECT *
+            `SELECT *
             FROM messages
-            WHERE id=$1
-            `,
+            WHERE id=$1`,
             [id]
         );
         if (oldMessage.rows.length === 0) {

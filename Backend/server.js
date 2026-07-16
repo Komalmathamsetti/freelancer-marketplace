@@ -42,7 +42,6 @@ app.get("/",(req,res)=>{
 app.set("io",io);
 const onlineUsers = new Set();
 io.on("connection", (socket) => {
-    console.log("User Connected");
     socket.on("join",(userId)=>{
         socket.userId = userId;
         socket.join(userId.toString());
@@ -56,6 +55,20 @@ io.on("connection", (socket) => {
             io.emit("online-users",[...onlineUsers]);
             console.log(`User ${socket.userId} went Offline`);
         }
+    });
+    socket.on("typing", (data) => {
+    if (!data?.receiverId) return;
+    io.to(data.receiverId.toString()).emit(
+        "user-typing",
+        data.senderId
+    );
+    });
+    socket.on("stop-typing", (data) => {
+    if (!data?.receiverId) return;
+    io.to(data.receiverId.toString()).emit(
+        "user-stop-typing",
+        data.senderId
+    );
     });
 });
 const PORT = process.env.PORT || 5000;
