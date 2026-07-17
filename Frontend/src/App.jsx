@@ -24,6 +24,9 @@ import ClientJobDetails from "./pages/client/clientJobDetails";
 import MessagingModule from "./pages/common/Messages";
 import About from "./pages/common/About";
 import ContactUsPage from "./pages/common/ContactUs";
+import FAQPage from "./pages/common/FAQ";
+import TermsAndConditions from "./pages/common/TermsAndConditions";
+import PrivacyPolicy from "./pages/common/PrivacyPolicy";
 function App() {
 return (
 <BrowserRouter>
@@ -33,6 +36,9 @@ return (
 <Route path="/register" element={<Register />} />
 <Route path="/about" element={<About />}/>
 <Route path="/contact" element={<ContactUsPage />} />
+<Route path="/faq" element={<FAQPage/>} />
+<Route path="/privacy" element={<PrivacyPolicy/>} />
+<Route path="/terms-conditions" element={<TermsAndConditions/>}/>
 <Route
 path="/freelancer/dashboard"
 element={<FreelancerDashboard />}

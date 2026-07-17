@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { loginUser } from "../../services/loginService";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function LoginPage() {
 
@@ -56,9 +56,27 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-linear-to-br from-blue-50 to-white flex items-center justify-center px-4 py-10">
       <div className="w-full max-w-md">
-
         <div className="bg-white shadow-2xl rounded-3xl overflow-hidden border border-blue-100">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            {/* Logo */}
+            <div className="shrink-0 flex items-center gap-2">
+              <div className="w-10 h-10 bg-linear-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-lg">S</span>
+              </div>
+              <span onClick={()=>navigate("/")} className="font-bold text-xl text-gray-900 hidden sm:inline">
+                SkillSphere
+              </span>
+            </div>
 
+            {/* Desktop Menu */}
+            <div className="hidden md:flex items-center gap-8">
+              <Link to="/" className="text-gray-700 hover:text-blue-600 transition">
+                Home
+              </Link>
+            </div>
+          </div>
+        </div>
           <div className="bg-blue-600 px-8 py-10 text-center">
             <h1 className="text-3xl font-bold text-white">
               Freelancer Marketplace

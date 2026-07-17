@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import {
   ArrowRight,
   BadgeCheck,
@@ -73,19 +74,19 @@ const values = [
 
 const team = [
   {
-    name: "Aarav Mehta",
+    name: "Komal Mathamsetti",
     role: "CEO",
     image:
       "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=80",
   },
   {
-    name: "Nisha Verma",
+    name: "Varahala Rao Mathamsetti",
     role: "CTO",
     image:
       "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=600&q=80",
   },
   {
-    name: "Rohan Das",
+    name: "Pardhu Mathamsetti",
     role: "Community Manager",
     image:
       "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=600&q=80",
@@ -135,6 +136,7 @@ function CountUp({ end, suffix = "+" }) {
 }
 
 export default function AboutUsPage() {
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen overflow-hidden bg-linear-to-b from-blue-50 via-white to-blue-100 text-slate-900">
       <div className="pointer-events-none absolute inset-0 opacity-50">
@@ -142,7 +144,32 @@ export default function AboutUsPage() {
         <div className="absolute top-40 right-20 h-104 w-104 rounded-full bg-blue-200 blur-3xl" />
         <div className="absolute bottom-0 left-1/3 h-72 w-72 rounded-full bg-white blur-3xl" />
       </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            {/* Logo */}
+            <div className="shrink-0 flex items-center gap-2">
+              <div className="w-10 h-10 bg-linear-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-lg">S</span>
+              </div>
+              <span onClick={()=>navigate("/")} className="font-bold text-xl text-gray-900 hidden sm:inline">
+                SkillSphere
+              </span>
+            </div>
 
+            {/* Desktop Menu */}
+            <div className="hidden md:flex items-center gap-8">
+              <Link to="/" className="text-gray-700 hover:text-blue-600 transition">
+                Home
+              </Link>
+              <Link to="/about" className="text-blue-700 hover:text-gray-600 transition">
+                About
+              </Link>
+              <Link to="/contact" className="text-gray-700 hover:text-blue-600 transition">
+                Contact
+              </Link>
+            </div>
+          </div>
+        </div>
       <main className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
         {/* Hero */}
         <section className="overflow-hidden rounded-3xl border border-white/60 bg-white/30 shadow-2xl backdrop-blur-xl">

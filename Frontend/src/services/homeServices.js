@@ -12,3 +12,5 @@ API.interceptors.request.use((config) => {
 export const getFeaturedJobs = () => API.get("/home/featured-jobs");
 export const getCategories = () => API.get("/home/categories");
 export const getFeaturedFreelancers = () =>API.get("/home/featured-freelancers");
+export const getHomeStats = ()=>API.get("/home/stats");
+export const getTestimonials=()=>API.get("/reviews/home-testimonials");

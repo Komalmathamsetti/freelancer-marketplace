@@ -53,3 +53,30 @@ exports.getFeaturedFreelancers = async(req,res)=>{
         res.status(500).json({success:false,message:"Server Error"});
     }
 };
+exports.getHomeStats = async (req, res) => {
+    try {
+        const freelancerResult = await pool.query(
+            "SELECT COUNT(*) FROM users WHERE role='freelancer'"
+        );
+        const clientResult = await pool.query(
+            "SELECT COUNT(*) FROM users WHERE role='client'"
+        );
+        const jobsResult = await pool.query(
+            "SELECT COUNT(*) FROM jobs"
+        );
+        const completedProjects = await pool.query(
+            "SELECT COUNT(*) FROM jobs WHERE status='completed'"
+        );
+        res.json({
+            freelancers: Number(freelancerResult.rows[0].count),
+            clients: Number(clientResult.rows[0].count),
+            jobs: Number(jobsResult.rows[0].count),
+            completedProjects: Number(completedProjects.rows[0].count)
+        });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({
+            message: "Unable to fetch statistics"
+        });
+    }
+};

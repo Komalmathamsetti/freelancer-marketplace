@@ -1,6 +1,6 @@
 import { useState,useEffect } from 'react';
 import { Link,useNavigate } from "react-router-dom";
-import { getFeaturedFreelancers,getCategories,getFeaturedJobs } from '../../services/homeServices';
+import { getFeaturedFreelancers,getCategories,getFeaturedJobs,getHomeStats,getTestimonials } from '../../services/homeServices';
 import {
   Menu,
   X,
@@ -14,11 +14,14 @@ import {
   Palette,
   Camera,
   BarChart3,
-  Globe,
-  Heart,
-  Share2,
-  ChevronDown,
+  ChevronDown
 } from 'lucide-react';
+import {
+FaGithub,
+FaLinkedin,
+FaInstagram,
+FaEnvelope
+} from "react-icons/fa";
 
 export default function SkillSphereLanding() {
   const navigate = useNavigate();
@@ -32,6 +35,13 @@ export default function SkillSphereLanding() {
   const [location,setLocation]=useState("");
   const [loading,setLoading] = useState(true);
   const [showMenu,setShowMenu] = useState(false);
+  const [testimonials,setTestimonials] = useState([]);
+  const [stats,setStats] = useState({
+    freelancers:0,
+    clients:0,
+    jobs:0,
+    completedProjects:0
+  });
   const user = JSON.parse(localStorage.getItem("user"));
   const handleQuickLink = (type) => {
 
@@ -72,10 +82,14 @@ export default function SkillSphereLanding() {
             await getCategories();
             const freelancerResponse =
             await getFeaturedFreelancers();
+            const statsResponse = await getHomeStats();
+            const testimonialResponse = await getTestimonials();
             if(!ignore){
                 setJobs(jobsResponse.data.jobs);
                 setCategories(categoryResponse.data.categories);
                 setFreelancers(freelancerResponse.data.freelancers);
+                setStats(statsResponse.data);
+                setTestimonials(testimonialResponse.data.testimonials);
             }
         }
         catch(error){
@@ -105,42 +119,11 @@ export default function SkillSphereLanding() {
     </div>
     );
   }
-  const stats = [
-    { label: 'Active Freelancers', value: '250K+' },
-    { label: 'Satisfied Clients', value: '180K+' },
-    { label: 'Jobs Posted', value: '1.5M+' },
-    { label: 'Projects Completed', value: '3.2M+' },
-  ];
-
   const steps = [
     { number: 1, title: 'Post Your Job', description: 'Describe your project and requirements' },
     { number: 2, title: 'Receive Proposals', description: 'Get proposals from qualified freelancers' },
     { number: 3, title: 'Hire & Chat', description: 'Choose the best fit and start collaborating' },
     { number: 4, title: 'Complete & Pay', description: 'Release payment after project completion' },
-  ];
-
-  const testimonials = [
-    {
-      name: 'James Wilson',
-      role: 'CEO, StartupHub',
-      image: 'https://i.pravatar.cc/150?img=10',
-      rating: 5,
-      text: 'SkillSphere helped us find the perfect developers for our project. Amazing platform with top-notch freelancers!',
-    },
-    {
-      name: 'Priya Patel',
-      role: 'Freelancer, Designer',
-      image: 'https://i.pravatar.cc/150?img=11',
-      rating: 5,
-      text: 'Best platform to showcase my skills and connect with clients worldwide. Fair pricing and great community support.',
-    },
-    {
-      name: 'Marcus Lee',
-      role: 'Marketing Manager, Digital Agency',
-      image: 'https://i.pravatar.cc/150?img=12',
-      rating: 5,
-      text: 'The talent pool is incredible. We have completed 50+ projects on SkillSphere with consistent quality and professionalism.',
-    },
   ];
 
   return (
@@ -167,22 +150,22 @@ export default function SkillSphereLanding() {
 
             {/* Desktop Menu */}
             <div className="hidden md:flex items-center gap-8">
-              <a href="#" className="text-gray-700 hover:text-blue-600 transition">
+              <Link to="/" className="text-gray-700 hover:text-blue-600 transition">
                 Home
-              </a>
-              <a href="#about" className="text-gray-700 hover:text-blue-600 transition">
+              </Link>
+              <Link to="/about" className="text-gray-700 hover:text-blue-600 transition">
                 About
-              </a>
-              <a href="#contact" className="text-gray-700 hover:text-blue-600 transition">
+              </Link>
+              <Link to="/contact" className="text-gray-700 hover:text-blue-600 transition">
                 Contact
-              </a>
+              </Link>
             </div>
 
             {/* Desktop Auth Buttons */}
             <div className="hidden md:flex items-center gap-4">
               {!user ? (
                 <>
-                <button onClick={() => navigate("/login")} className="px-6 py-2 text-blue-600 font-medium hover:text-blue-700 transition">
+                <button onClick={() => navigate("/login")} className="px-6 py-2 text-blue-600 font-medium hover:cursor: pointer-none:text-blue-700 transition">
                   Login
                 </button>
                 <button onClick={() => navigate("/register")} className="px-6 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700">
@@ -558,58 +541,71 @@ export default function SkillSphereLanding() {
       </section>
 
       {/* Platform Statistics */}
-      <section id="stats" className="py-20 bg-linear-to-r from-blue-600 to-blue-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, idx) => (
-              <div key={idx} className="text-center text-white">
-                <div className="text-4xl md:text-5xl font-bold mb-2">{stat.value}</div>
-                <p className="text-blue-100 text-lg">{stat.label}</p>
-              </div>
-            ))}
-          </div>
+      <section className="py-20 bg-linear-to-r from-blue-600 to-blue-800">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 text-center shadow-lg hover:scale-105 transition duration-300">
+          <h2 className="text-5xl font-extrabold text-white">
+          {stats.freelancers}
+          </h2>
+          <p className="mt-3 text-blue-100 font-medium">
+          Registered Freelancers
+          </p>
         </div>
-      </section>
-
-      {/* Testimonials */}
-      <section id="testimonials" className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">What Our Users Say</h2>
-            <p className="text-xl text-gray-600">Join thousands of satisfied clients and freelancers</p>
+        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 text-center shadow-lg hover:scale-105 transition duration-300">
+        <h2 className="text-5xl font-extrabold text-white">
+          {stats.clients}
+        </h2>
+        <p className="mt-3 text-blue-100 font-medium">
+          Registered Clients
+        </p>
+        </div>
+        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 text-center shadow-lg hover:scale-105 transition duration-300">
+        <h2 className="text-5xl font-extrabold text-white">
+          {stats.jobs}
+        </h2>
+        <p className="mt-3 text-blue-100 font-medium">
+          Jobs Posted
+        </p>
+        </div>
+        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 text-center shadow-lg hover:scale-105 transition duration-300">
+        <h2 className="text-5xl font-extrabold text-white">
+          {stats.completedProjects}
+        </h2>
+        <p className="mt-3 text-blue-100 font-medium">
+          Completed Projects
+        </p>
+        </div>
+      </div>
+      </div>
+     </section>
+      {/* Testimonials Section */}
+      <section className="py-20 bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {testimonials.length === 0 ? (
+          <div className="text-center py-20">
+            <h2 className="text-3xl font-bold">No Reviews Yet</h2>
+            <p className="text-gray-500 mt-3">Testimonials will appear here after successful projects.</p>
           </div>
-
+          ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, idx) => (
-              <div
-                key={idx}
-                className="bg-white rounded-xl p-8 shadow-md hover:shadow-xl transition border border-gray-100"
-              >
-                <div className="flex items-center gap-4 mb-4">
-                  <img
-                    src={testimonial.image}
-                    alt={testimonial.name}
-                    className="w-14 h-14 rounded-full"
-                  />
-                  <div>
-                    <h4 className="font-bold text-gray-900">{testimonial.name}</h4>
-                    <p className="text-sm text-gray-600">{testimonial.role}</p>
-                  </div>
+            {testimonials.map((testimonial, index) => (
+              <div key={index} className="bg-white rounded-xl p-8 shadow-md border border-gray-100">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-bold text-lg">
+                    {testimonial.full_name}
+                  </h3>
+                <span className="text-yellow-500 font-semibold">
+                  ⭐ {testimonial.rating}
+                </span>
                 </div>
-
-                <div className="flex gap-1 mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} size={18} className="fill-yellow-400 text-yellow-400" />
-                  ))}
-                </div>
-
-                <p className="text-gray-700 leading-relaxed">{testimonial.text}</p>
+              <p className="text-gray-600">"{testimonial.review}"</p>
               </div>
             ))}
           </div>
+        )}
         </div>
       </section>
-
       {/* CTA Section */}
       <section id="cta" className="py-20 bg-linear-to-r from-blue-600 to-blue-800">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -635,27 +631,32 @@ export default function SkillSphereLanding() {
                 <span className="font-bold text-white text-lg">SkillSphere</span>
               </div>
               <p className="text-sm text-gray-400">
-                The premier platform connecting talented freelancers with ambitious businesses worldwide.
+                SkillSphere is a modern freelancer marketplace that connects talented professionals with businesses worldwide. Post projects, hire skilled freelancers, collaborate in real-time, and complete projects securely.
               </p>
             </div>
 
             {/* Quick Links */}
             <div>
               <h4 className="font-bold text-white mb-4">Quick Links</h4>
-              <ul className="space-y-2 text-sm">
+              <ul className="space-y-3 text-sm">
                 <li>
-                  <button onClick={()=>handleQuickLink("jobs")} className="hover:text-white transition">
+                  <button onClick={() => navigate("/")} className="hover:text-white transition">
+                    Home
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => navigate("/about")} className="hover:text-white transition">
+                    About
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => navigate("/contact")} className="hover:text-white transition">
+                    Contact
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => handleQuickLink("jobs")} className="hover:text-white transition">
                     Browse Jobs
-                  </button>
-                </li>
-                <li>
-                  <button onClick={()=>handleQuickLink("become")} cursor:pointer className="hover:text-white transition">
-                    Become Freelancer
-                  </button>
-                </li>
-                <li>
-                  <button onClick={()=> handleQuickLink("pricing")} className="hover:text-white transition">
-                    Pricing
                   </button>
                 </li>
               </ul>
@@ -663,31 +664,30 @@ export default function SkillSphereLanding() {
 
             {/* Services */}
             <div>
-              <h4 className="font-bold text-white mb-4">Services</h4>
-              <ul className="space-y-2 text-sm">
-                <li>
-                  <a href="#" className="hover:text-white transition">
-                    Web Development
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white transition">
-                    Design & UI
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white transition">
-                    Content Writing
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white transition">
-                    Marketing
-                  </a>
-                </li>
-              </ul>
+              <h4 className="font-bold text-white mb-4">
+                Popular Categories
+                </h4>
+                <ul className="space-y-3 text-sm">
+                  {categories.slice(0,6).map((category)=>(
+                    <li key={category.category}>
+                    <button className="hover:text-white transition"
+                    onClick={()=>{
+                      if(!user){
+                        navigate("/login");
+                        return;
+                      }
+                      if(user.role==="freelancer"){
+                        navigate(`/freelancer/jobs?category=${encodeURIComponent(category.category)}`);
+                      }else{
+                        navigate("/client/post-job");
+                      }
+                    }}>
+                      {category.category}
+                    </button>
+                  </li>
+                  ))}
+                </ul>
             </div>
-
             {/* Contact Info */}
             <div>
               <h4 className="font-bold text-white mb-4">Contact</h4>
@@ -702,17 +702,17 @@ export default function SkillSphereLanding() {
             <div>
               <h4 className="font-bold text-white mb-4">Follow Us</h4>
               <div className="flex gap-4">
-                <a href="#" className="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-blue-600 transition">
-                  <Share2 size={18} />
+                <a href="https://github.com/Komalmathamsetti" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-lg bg-gray-800 flex items-center justify-center hover:bg-blue-600 transition">
+                <FaGithub/>
                 </a>
-                <a href="#" className="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-blue-600 transition">
-                  <Heart size={18} />
+                <a href="https://www.linkedin.com/in/komal-mathamsetti/" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-lg bg-gray-800 flex items-center justify-center hover:bg-blue-600 transition">
+                <FaLinkedin/>
                 </a>
-                <a href="#" className="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-blue-600 transition">
-                  <Users size={18} />
+                <a href="mailto:support@skillsphere.com" className="w-10 h-10 rounded-lg bg-gray-800 flex items-center justify-center hover:bg-blue-600 transition">
+                  <FaEnvelope/>
                 </a>
-                <a href="#" className="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-blue-600 transition">
-                  <Globe size={18} />
+                <a href="https://instagram.com/YOUR_USERNAME" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-lg bg-gray-800 flex items-center justify-center hover:bg-blue-600 transition">
+                <FaInstagram/>
                 </a>
               </div>
             </div>
@@ -723,15 +723,15 @@ export default function SkillSphereLanding() {
             <div className="flex flex-col md:flex-row justify-between items-center text-sm text-gray-400">
               <p>&copy; {new Date().getFullYear()} SkillSphere. All rights reserved.</p>
               <div className="flex gap-6 mt-4 md:mt-0">
-                <a href="#" className="hover:text-white transition">
-                  Privacy Policy
-                </a>
-                <a href="#" className="hover:text-white transition">
-                  Terms of Service
-                </a>
-                <a href="#" className="hover:text-white transition">
-                  Cookie Policy
-                </a>
+                <Link to="/privacy" className="hover:text-white transition">
+                Privacy Policy
+                </Link>
+                <Link to="/terms-conditions" className="hover:text-white transition">
+                Terms & Conditions
+                </Link>
+                <Link to="/faq" className="hover:text-white transition">
+                FAQ
+                </Link>
               </div>
             </div>
           </div>

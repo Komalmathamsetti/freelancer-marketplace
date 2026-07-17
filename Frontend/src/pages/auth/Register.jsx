@@ -1,4 +1,5 @@
 import { useState } from "react";
+import {Link,useNavigate} from "react-router-dom"
 import { registerUser } from "../../services/authServices";
 
 export default function Register() {
@@ -9,7 +10,7 @@ export default function Register() {
     phone: "",
     role: "freelancer",
   });
-
+  const navigate = useNavigate();
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -43,7 +44,26 @@ export default function Register() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-blue-50">
       <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            {/* Logo */}
+            <div className="shrink-0 flex items-center gap-2">
+              <div className="w-10 h-10 bg-linear-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-lg">S</span>
+              </div>
+              <span onClick={()=>navigate("/")} className="font-bold text-xl text-gray-900 hidden sm:inline">
+                SkillSphere
+              </span>
+            </div>
 
+            {/* Desktop Menu */}
+            <div className="hidden md:flex items-center gap-8">
+              <Link to="/" className="text-gray-700 hover:text-blue-600 transition">
+                Home
+              </Link>
+            </div>
+          </div>
+          </div>
         <h2 className="text-3xl font-bold text-blue-600 mb-6 text-center">
           Register
         </h2>

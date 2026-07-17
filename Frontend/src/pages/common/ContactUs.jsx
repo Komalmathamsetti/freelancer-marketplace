@@ -1,22 +1,21 @@
 import { useState } from "react";
+import { Link,useNavigate } from "react-router-dom";
 import {
   Mail,
   Phone,
   MapPin,
   Clock,
-  Send,
-  Linkedin,
-  Github,
-  Twitter,
-  Instagram,
-  Facebook,
   Headphones,
   Code2,
   BriefcaseBusiness,
   ChevronDown,
   Sparkles,
 } from "lucide-react";
-
+import {
+  FaLinkedin,
+  FaGithub,
+  FaInstagram
+} from "react-icons/fa";
 const contactInfo = [
   {
     icon: Mail,
@@ -64,11 +63,9 @@ const faqs = [
 ];
 
 const socialLinks = [
-  { icon: Linkedin, name: "LinkedIn" },
-  { icon: Github, name: "GitHub" },
-  { icon: Twitter, name: "Twitter" },
-  { icon: Instagram, name: "Instagram" },
-  { icon: Facebook, name: "Facebook" },
+  { icon: FaLinkedin, name: "LinkedIn" },
+  { icon: FaGithub, name: "GitHub" },
+  { icon: FaInstagram, name: "Instagram" },
 ];
 
 const supportCards = [
@@ -119,7 +116,7 @@ function AccordionItem({ item, isOpen, onClick }) {
 
 export default function ContactUsPage() {
   const [openFaq, setOpenFaq] = useState(0);
-
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen overflow-hidden bg-linear-to-b from-blue-50 via-white to-blue-100 text-slate-900">
       {/* Background */}
@@ -128,7 +125,32 @@ export default function ContactUsPage() {
         <div className="absolute top-40 right-20 h-104 w-104 rounded-full bg-blue-200 blur-3xl" />
         <div className="absolute bottom-0 left-1/3 h-72 w-72 rounded-full bg-white blur-3xl" />
       </div>
+       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            {/* Logo */}
+            <div className="shrink-0 flex items-center gap-2">
+              <div className="w-10 h-10 bg-linear-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-lg">S</span>
+              </div>
+              <span onClick={()=>navigate("/")} className="font-bold text-xl text-gray-900 hidden sm:inline">
+                SkillSphere
+              </span>
+            </div>
 
+            {/* Desktop Menu */}
+            <div className="hidden md:flex items-center gap-8">
+              <Link to="/" className="text-gray-700 hover:text-blue-600 transition">
+                Home
+              </Link>
+              <Link to="/about" className="text-gray-700 hover:text-blue-600 transition">
+                About
+              </Link>
+              <Link to="/contact" className="text-blue-700 hover:text-gray-600 transition">
+                Contact
+              </Link>
+            </div>
+          </div>
+          </div>
       <main className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
         {/* Hero */}
         <section className="overflow-hidden rounded-3xl border border-white/60 bg-white/30 shadow-2xl backdrop-blur-xl">
@@ -186,61 +208,7 @@ export default function ContactUsPage() {
 
         {/* Form + FAQ */}
         <section className="mt-20 grid gap-8 lg:grid-cols-2">
-          {/* Form */}
-          <div className="rounded-3xl border border-white/70 bg-white/50 p-6 shadow-xl backdrop-blur-xl sm:p-8">
-            <div className="mb-6">
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-700">
-                Contact Form
-              </p>
-              <h2 className="mt-2 text-3xl font-bold">Send us a message</h2>
-            </div>
-
-            <form className="space-y-5">
-              {[
-                { id: "name", label: "Full Name", type: "text" },
-                { id: "email", label: "Email", type: "email" },
-                { id: "subject", label: "Subject", type: "text" },
-              ].map((field) => (
-                <div key={field.id} className="relative">
-                  <input
-                    id={field.id}
-                    type={field.type}
-                    placeholder=" "
-                    className="peer w-full rounded-2xl border border-blue-100 bg-white/80 px-4 py-4 text-slate-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-200"
-                  />
-                  <label
-                    htmlFor={field.id}
-                    className="pointer-events-none absolute left-4 top-4 text-slate-500 transition-all duration-200 peer-focus:-top-2 peer-focus:left-3 peer-focus:bg-white peer-focus:px-2 peer-focus:text-xs peer-focus:text-blue-700 peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-slate-500"
-                  >
-                    {field.label}
-                  </label>
-                </div>
-              ))}
-
-              <div className="relative">
-                <textarea
-                  id="message"
-                  rows="6"
-                  placeholder=" "
-                  className="peer w-full rounded-2xl border border-blue-100 bg-white/80 px-4 py-4 text-slate-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-200"
-                />
-                <label
-                  htmlFor="message"
-                  className="pointer-events-none absolute left-4 top-4 text-slate-500 transition-all duration-200 peer-focus:-top-2 peer-focus:left-3 peer-focus:bg-white peer-focus:px-2 peer-focus:text-xs peer-focus:text-blue-700 peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-slate-500"
-                >
-                  Message
-                </label>
-              </div>
-
-              <button
-                type="button"
-                className="group inline-flex w-full items-center justify-center gap-2 rounded-full bg-linear-to-r from-blue-600 to-blue-500 px-7 py-4 font-semibold text-white shadow-lg shadow-blue-500/25 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-blue-500/40"
-              >
-                Send Message
-                <Send className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
-              </button>
-            </form>
-          </div>
+          
 
           {/* FAQ */}
           <div className="rounded-3xl border border-white/70 bg-white/50 p-6 shadow-xl backdrop-blur-xl sm:p-8">
