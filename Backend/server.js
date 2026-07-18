@@ -15,6 +15,7 @@ const adminRoutes = require("./routes/adminRoutes");
 const freelancerRoutes = require("./routes/freelancerRoutes");
 const messageRoutes = require("./routes/messageRoutes");
 const reviewRoutes = require("./routes/reviewRoutes");
+const aiRoutes = require("./routes/aiRoutes");
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -35,6 +36,7 @@ app.use("/api/home",homeRoutes);
 app.use("/api/proposals",proposalRoutes);
 app.use("/api/messages",messageRoutes);
 app.use("/api/reviews",reviewRoutes);
+app.use("/api/ai",aiRoutes);
 app.get("/api/profile", authMiddleware, (req, res) => {
   res.json({success: true, user: req.user,});
 });

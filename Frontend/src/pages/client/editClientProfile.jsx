@@ -4,6 +4,7 @@ import { getProfile,updateProfile } from "../../services/profileServices";
 export default function EditClientProfile() {
     const navigate = useNavigate();
     const [formData,setFormData] = useState({
+        full_name:"",
         company_name: "",
         company_description:"",
         website:"",
@@ -15,6 +16,7 @@ export default function EditClientProfile() {
       const response = await getProfile();
       if (response.data.success) {
         setFormData({
+          full_name:response.data.user?.full_name||"",
           company_name: response.data.profile?.company_name || "",
           company_description: response.data.profile?.company_description || "",
           website: response.data.profile?.website || "",
@@ -33,10 +35,11 @@ export default function EditClientProfile() {
     const handleSubmit = async()=>{
        try{
            await updateProfile({
+            full_name:formData.full_name,
             bio: "",
             skills: "",
-            hourly_rate: "",
-            experience: "",
+            hourly_rate:null,
+            experience:null,
             portfolio: "",
             company_name: formData.company_name,
             company_description: formData.company_description,
@@ -66,6 +69,17 @@ export default function EditClientProfile() {
 
           <div className="px-6 py-8 sm:px-8">
             <div className="space-y-5">
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">
+                  Full Name
+                </label>
+                <input
+                type="text"
+                name="full_name"
+                value={formData.full_name}
+                onChange={handleChange}
+                className="w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"/>
+              </div>
               <div>
                 <label className="mb-2 block text-sm font-medium text-slate-700">Company Name</label>
                 <input

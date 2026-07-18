@@ -27,6 +27,7 @@ import ContactUsPage from "./pages/common/ContactUs";
 import FAQPage from "./pages/common/FAQ";
 import TermsAndConditions from "./pages/common/TermsAndConditions";
 import PrivacyPolicy from "./pages/common/PrivacyPolicy";
+import ViewFreelancerProfile from "./pages/client/viewFreelancerDetails";
 function App() {
 return (
 <BrowserRouter>
@@ -54,6 +55,10 @@ element={<AdminDashboard />}
 <Route
   path="/freelancer/profile/edit"
   element={<EditFreelancerProfile />}
+/>
+<Route 
+  path="/freelancer/profile/:id"
+  element={<ViewFreelancerProfile/>}
 />
 <Route
   path="/client/profile/edit"

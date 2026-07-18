@@ -5,6 +5,7 @@ export default function EditFreelancerProfile() {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user"));
   const [formData, setFormData] = useState({
+    full_name:"",
     bio: "",
     skills: "",
     hourly_rate: "",
@@ -17,6 +18,7 @@ export default function EditFreelancerProfile() {
             const response = await getProfile();
             if (response.data.profile) {
                 setFormData({
+                    full_name:response.data.user?.full_name||"",
                     bio: response.data.profile.bio || "",
                     skills: response.data.profile.skills || "",
                     hourly_rate: response.data.profile.hourly_rate || "",
@@ -84,11 +86,11 @@ export default function EditFreelancerProfile() {
                 <div>
                   <label className="mb-2 block text-sm font-medium text-slate-700">Full Name</label>
                   <input
-                    type="text"
-                    disabled
-                    value={user?.full_name}
-                    className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-slate-500 outline-none"
-                  />
+                  type="text"
+                  name="full_name"
+                  value={formData.full_name}
+                  onChange={handleChange}
+                  className="w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"/>
                 </div>
 
                 <div>

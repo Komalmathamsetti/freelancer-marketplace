@@ -158,7 +158,7 @@ export default function ApplicantsPage() {
                   </div>
 
                   <div className="flex flex-wrap gap-3">
-                    <button className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                    <button onClick={()=>navigate(`/freelancer/profile/${applicant.freelancer_id}`)} className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
                       <Eye className="h-4 w-4" />
                       View Profile
                     </button>

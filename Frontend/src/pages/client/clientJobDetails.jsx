@@ -1,13 +1,16 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getClientJob,closeJob } from "../../services/jobServices";
+import axios from "axios";
 export default function ClientJobDetails() {
   const navigate = useNavigate();
   const { id } = useParams();
 
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
-
+  const [recommendations,setRecommendations] = useState([]);
+  const [loadingRecommendations,setLoadingRecommendations] = useState(false);
+  const [showRecommendations,setShowRecommendations] = useState(false);
   useEffect(() => {
     const loadJob = async () => {
       try {
@@ -62,6 +65,27 @@ export default function ClientJobDetails() {
     }
     catch(error){
         console.log(error);
+    }
+  }
+  const handleRecommendations = async()=>{
+    try{
+      setLoadingRecommendations(true);
+      const token = localStorage.getItem("token");
+      const response = await axios.get(
+        `http://localhost:5000/api/ai/recommend/${id}`,
+        {
+          headers:{
+            Authorization:`Bearer ${token}`,
+          },
+        }
+      );
+      setRecommendations(response.data.recommendations);
+      setShowRecommendations(true);
+    }catch(error){
+      console.log(error);
+      alert("Unable to fetch AI recommendations");
+    }finally{
+      setLoadingRecommendations(false);
     }
   }
   const isOpen = (job.status || "").toLowerCase() === "open";
@@ -193,7 +217,9 @@ export default function ClientJobDetails() {
             >
               View Applicants
             </button>
-
+            <button onClick={handleRecommendations} className="rounded-2xl bg-purple-600 px-5 py-3 text-sm font-medium text-white hover:bg-purple-700 transition">
+              {loadingRecommendations ? "Generating...": "🤖 AI Recommendations"}
+            </button>
             {isOpen ? (
               <button onClick={handleCloseJob} className="rounded-2xl bg-red-600 px-5 py-3 text-sm font-medium text-white hover:bg-red-700 transition">
                 Close Job
@@ -215,6 +241,53 @@ export default function ClientJobDetails() {
             </button>
           </div>
         </div>
+        {showRecommendations && (
+          <div className="rounded-3xl bg-white shadow-sm border border-slate-100 p-6 sm:p-8 mt-6">
+            <h2 className="text-2xl font-bold text-slate-900 mb-6">
+              🤖 AI Recommended Freelancers
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              {recommendations.map((freelancer) => (
+                <div key={freelancer.id} className="rounded-2xl border border-slate-200 shadow hover:shadow-lg transition p-5">
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-xl font-bold">{freelancer.full_name}</h3>
+                    <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-bold">
+                      {freelancer.match}%
+                    </span>
+                  </div>
+                  <p className="text-slate-500 mt-2">{freelancer.email}</p>
+                  <div className="mt-4">
+                    <p className="font-semibold mb-2">Skills</p>
+                    <div className="flex flex-wrap gap-2">
+                      {freelancer.skills?.split(",").map((skill, index) => (
+                        <span key={index} className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+                          {skill.trim()}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="mt-4">
+                    <p className="font-semibold">Experience</p>
+                    <p className="text-slate-600">{freelancer.experience_level}</p>
+                  </div>
+                  <div className="mt-4">
+                    <p className="font-semibold">Hourly Rate</p>
+                    <p className="text-slate-600">₹{freelancer.hourly_rate}</p>
+                  </div>
+                  <div className="mt-4">
+                    <p className="font-semibold text-purple-700">AI Reason</p>
+                    <p className="text-slate-700 mt-2">{freelancer.reason}</p>
+                  </div>
+                  {freelancer.portfolio && (
+                    <a href={freelancer.portfolio} target="_blank" rel="noreferrer" className="inline-block mt-5 text-blue-600 hover:underline">
+                      View Portfolio →
+                    </a>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

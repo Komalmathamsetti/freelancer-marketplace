@@ -11,3 +11,4 @@ API.interceptors.request.use((config)=>{
 });
 export const getProfile = ()=>API.get("/profile");
 export const updateProfile = (data)=>API.put("/profile",data);
+export const getFreelancerProfile = (id)=>API.get(`/profile/freelancer/${id}`);

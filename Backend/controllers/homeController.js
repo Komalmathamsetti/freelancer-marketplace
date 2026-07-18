@@ -9,8 +9,8 @@ exports.getFeaturedJobs = async(req,res)=>{
             JOIN users
             ON jobs.client_id = users.id
             WHERE jobs.status='Open'
-            ORDER BY jobs.created_at DESC
-            LIMIT 6`
+            ORDER BY jobs.created_at ASC
+            LIMIT 3`
         );
         res.json({success:true,jobs:jobs.rows});
     }catch(error){
@@ -27,7 +27,8 @@ exports.getCategories = async(req,res)=>{
             FROM jobs
             WHERE status='Open'
             GROUP BY category
-            ORDER BY total_jobs DESC`
+            ORDER BY total_jobs DESC
+            LIMIT 3`
         );
         res.json({success:true,categories:categories.rows});
     }catch(error){
