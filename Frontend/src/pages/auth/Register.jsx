@@ -1,7 +1,7 @@
 import { useState } from "react";
 import {Link,useNavigate} from "react-router-dom"
 import { registerUser } from "../../services/authServices";
-
+import toast from "react-hot-toast";
 export default function Register() {
   const [formData, setFormData] = useState({
     full_name: "",
@@ -23,11 +23,8 @@ export default function Register() {
 
     try {
       const response = await registerUser(formData);
-
-      alert(response.data.message);
-
+      toast(response.data.message);
       console.log(response.data);
-
       // Clear form after successful registration
       setFormData({
         full_name: "",
@@ -37,7 +34,7 @@ export default function Register() {
         role: "freelancer",
       });
     } catch (error) {
-      alert(error.response?.data?.message || "Something went wrong");
+      toast.error(error.response?.data?.message || "Something went wrong");
     }
   };
 

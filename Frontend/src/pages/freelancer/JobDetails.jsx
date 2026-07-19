@@ -3,6 +3,7 @@ import { useNavigate,useParams } from "react-router-dom";
 import { applyJob,checkApplication } from "../../services/proposalServices";
 import { getSingleJob } from "../../services/jobServices";
 import { saveJob } from "../../services/freelancerServices";
+import toast from "react-hot-toast";
 export default function JobDetailsPage() {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -22,7 +23,7 @@ export default function JobDetailsPage() {
             setJob(response.data.job);
         }
         catch(error){
-            console.log(error);
+          toast.error(error.response?.data?.message || "Unable to get Job");
         }
         finally{
             setLoading(false);
@@ -30,8 +31,6 @@ export default function JobDetailsPage() {
         const token = localStorage.getItem("token");
         if (token) {
           const res = await checkApplication(id);
-          console.log("Job ID:", id);
-console.log("Response:", res.data);
           if (res.data.applied) {
             setApplicationStatus(res.data.status);
           }
@@ -62,21 +61,21 @@ console.log("Response:", res.data);
   const handleApply = async () => {
     try {
         const response = await applyJob(id, proposal);
-        alert(response.data.message);
+        toast.success(response.data.message);
         setShowModal(false);
         navigate("/freelancer/my-applications");
     } catch (error) {
-        alert(error.response?.data?.message || "Error");
+        toast.error(error.response?.data?.message || "Error");
     }
   };
   const handleSaveJob=async(jobId)=>{
       try{
           const response=await saveJob(jobId);
-          alert(response.data.message);
+          toast.success(response.data.message);
       }
       catch(error){
           if(error.response){
-              alert(error.response.data.message);
+              toast.error(error.response.data.message);
           }
           else{
               console.log(error);

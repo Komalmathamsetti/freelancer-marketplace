@@ -356,25 +356,6 @@ export default function FAQPage() {
               </svg>
               Email Support
             </a>
-            <a
-              href="#"
-              className="inline-flex items-center justify-center gap-2 bg-white hover:bg-blue-50 text-blue-600 border border-blue-200 font-semibold text-sm px-6 py-3 rounded-xl transition shadow-sm"
-            >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                />
-              </svg>
-              Live Chat
-            </a>
           </div>
 
           {/* Trust indicators */}
@@ -405,8 +386,8 @@ export default function FAQPage() {
             © {new Date().getFullYear()} SkillSphere. All rights reserved.
           </p>
           <div className="flex gap-5 text-xs">
-            <Link to="#" className="hover:text-white transition">Privacy</Link>
-            <Link to="#" className="hover:text-white transition">Terms</Link>
+            <Link to="/privacy" className="hover:text-white transition">Privacy</Link>
+            <Link to="terms-conditions" className="hover:text-white transition">Terms</Link>
           </div>
         </div>
       </footer>

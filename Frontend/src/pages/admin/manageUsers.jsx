@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAllUsers, deleteUser } from "../../services/adminServices";
-
+import toast from "react-hot-toast";
+import Swal from "sweetalert2";
 const roleStyles = {
   Client: "bg-blue-50 text-blue-700 ring-blue-100",
   Freelancer: "bg-violet-50 text-violet-700 ring-violet-100",
@@ -29,7 +30,7 @@ export default function AdminManageUsersPage() {
             }
         }
         catch (error) {
-            console.log(error);
+          toast.error(error.response?.data?.message || "Unable to load users");
         }
         finally {
             if (!ignore) {
@@ -61,18 +62,26 @@ export default function AdminManageUsersPage() {
     );
   }
   const handleDelete = async (id) => {
-    if (!window.confirm("Delete this user?")) {
-        return;
-    }
+    const result = await Swal.fire({
+            title: "Delete User?",
+            text: "This user will be permanently deleted. This action cannot be undone.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#2563eb",
+            cancelButtonColor: "#6b7280",
+            confirmButtonText: "Yes, Delete",
+            cancelButtonText: "Cancel",
+        });
+        if(!result.isConfirmed)return;
     try {
         const response = await deleteUser(id);
-        alert(response.data.message);
+        toast.success(response.data.message);
         setUsers((prev) =>
             prev.filter((user) => user.id !== id)
         );
     }
     catch (error) {
-        console.log(error);
+      toast.error(error.response?.data?.message || "Unable to delete user");
     }
   };
   return (

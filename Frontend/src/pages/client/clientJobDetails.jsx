@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getClientJob,closeJob } from "../../services/jobServices";
 import axios from "axios";
+import toast from "react-hot-toast";
+import Swal from "sweetalert2";
 export default function ClientJobDetails() {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -16,12 +18,12 @@ export default function ClientJobDetails() {
       try {
         setLoading(true);
         const response = await getClientJob(id);
-        console.log(response.data);
+        toast(response.data);
         if (response.data.success) {
-            setJob(response.data.job);
+          setJob(response.data.job);
         }
       } catch (error) {
-        console.log(error);
+        toast.error(error.response?.data?.message || "Unable to load Job");
         setJob(null);
       } finally {
         setLoading(false);
@@ -49,22 +51,28 @@ export default function ClientJobDetails() {
     );
   }
   const handleCloseJob = async()=>{
-    const confirmClose = window.confirm(
-        "Close this job?"
-    );
-    if(!confirmClose){
-        return;
-    }
-    try{
+    const result = await Swal.fire({
+        title: "Close Job?",
+        text: "Freelancers will no longer be able to apply for this job.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#2563eb",
+        cancelButtonColor: "#6b7280",
+        confirmButtonText: "Yes, Close Job",
+        cancelButtonText: "Cancel",
+    });
+    if (!result.isConfirmed) return;
+    try {
         const response = await closeJob(id);
-        alert(response.data.message);
+        toast.success(response.data.message);
         setJob({
             ...job,
-            status:"Closed"
+            status: "Closed",
         });
-    }
-    catch(error){
-        console.log(error);
+    } catch (error) {
+        toast.error(
+          error.response?.data?.message || "Unable to close the job."
+        );
     }
   }
   const handleRecommendations = async()=>{
@@ -83,7 +91,7 @@ export default function ClientJobDetails() {
       setShowRecommendations(true);
     }catch(error){
       console.log(error);
-      alert("Unable to fetch AI recommendations");
+      toast.error("Unable to fetch AI recommendations");
     }finally{
       setLoadingRecommendations(false);
     }

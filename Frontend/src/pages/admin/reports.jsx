@@ -9,6 +9,7 @@ import{
   Clock,
   XCircle
 } from "lucide-react";
+import toast from "react-hot-toast";
 export default function ReportsAnalyticsPage() {
   const navigate = useNavigate();
   const [analytics, setAnalytics] = useState({
@@ -64,7 +65,7 @@ export default function ReportsAnalyticsPage() {
         }
         setLastUpdated(new Date().toLocaleTimeString());
       }catch(error){
-        console.log(error);
+        toast.error(error.response?.data?.message || "Unable to load analytics");
       }finally{
         setLoading(false);
       }

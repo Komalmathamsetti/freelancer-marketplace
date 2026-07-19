@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams,useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import {
 Clock3,
 DollarSign,
@@ -55,7 +56,7 @@ export default function ApplicantsPage() {
                 setApplicants(response.data.applicants);
             }
         } catch (error) {
-            console.log(error);
+          toast.error(error.response?.data?.message || "Unable to get applicants");
         } finally {
             setLoading(false);
         }
@@ -69,9 +70,9 @@ export default function ApplicantsPage() {
         if (response.data.success) {
             setApplicants(response.data.applicants);
         }
-        alert("Proposal Accepted");
+        toast.success("Proposal Accepted");
     } catch (error) {
-        console.log(error);
+      toast.error(error.response?.data?.message || "Unable to accept proposal");
     }
   };
   const handleReject = async (id) => {
@@ -81,9 +82,9 @@ export default function ApplicantsPage() {
         if (response.data.success) {
             setApplicants(response.data.applicants);
         }
-        alert("Proposal Rejected");
+        toast.error("Proposal Rejected");
     } catch (error) {
-        console.log(error);
+      toast.error(error.response?.data?.message || "Unable to reject proposal");
     }
   };
   if(loading){

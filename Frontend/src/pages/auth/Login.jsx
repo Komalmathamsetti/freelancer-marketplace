@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { loginUser } from "../../services/loginService";
 import { Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 export default function LoginPage() {
-
   const navigate = useNavigate();
-
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -25,16 +24,12 @@ export default function LoginPage() {
     try {
 
       const response = await loginUser(formData);
-
-      /*alert(response.data.message);*/
-
       localStorage.setItem("token", response.data.token);
-
       localStorage.setItem(
         "user",
         JSON.stringify(response.data.user)
       );
-
+      toast.success(`Welcome back, ${response.data.user.full_name}!`);
       const role = response.data.user.role;
 
       if (role === "client") {
@@ -47,7 +42,7 @@ export default function LoginPage() {
 
     } catch (error) {
 
-      alert(error.response?.data?.message || "Login Failed");
+      toast.error(error.response?.data?.message || "Login Failed");
 
     }
 

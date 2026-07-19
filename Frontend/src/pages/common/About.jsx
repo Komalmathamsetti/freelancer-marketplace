@@ -16,7 +16,7 @@ import {
   BriefcaseBusiness,
   Sparkles,
 } from "lucide-react";
-
+import toast from "react-hot-toast";
 const features = [
   {
     icon: BadgeCheck,
@@ -142,7 +142,7 @@ export default function AboutUsPage() {
           const response = await getHomeStats();
           setStats(response.data);
       }catch(error){
-        console.log(error);
+        toast.error(error.response?.data?.message || "Unable to get stats");
       }
     };
     fetchStats();

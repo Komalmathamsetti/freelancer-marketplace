@@ -1,6 +1,8 @@
 import { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getSavedJobs,removeJob } from "../../services/freelancerServices";
+import toast from "react-hot-toast";
+import Swal from "sweetalert2";
 export default function SavedJobsPage() {
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
@@ -44,17 +46,24 @@ export default function SavedJobsPage() {
     );
   }
   const handleRemove=async(jobId)=>{
-    if(!window.confirm("Remove this saved job?")){
-        return;
-    }
+    const result = await Swal.fire({
+      title: "Remove Saved Job?",
+      text:"This Job will be removed from your saved jobs.",
+      icon:"warning",
+      showCancelButton:true,
+      confirmButtonColor:"#2563eb",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Yes, Remove",
+      cancelButtonText: "Cancel",
+    });
+    if(!result.isConfirmed) return;
     try{
-        const response=await removeJob(jobId);
-        alert(response.data.message);
-        setJobs(prev=>
-            prev.filter(job=>job.id!==jobId)
-        );
+      const response = await removeJob(jobId);
+      toast.success(response.data.message);
+      setJobs((prev)=>
+      prev.filter((job)=>job.id !== jobId));
     }catch(error){
-        console.log(error);
+      toast.error(error.response?.data?.message ||"Unable to remove the saved job");
     }
   };
   return (

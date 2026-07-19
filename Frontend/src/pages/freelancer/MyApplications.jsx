@@ -14,8 +14,8 @@ import {
   DollarSign,
   HandCoins,
 } from "lucide-react";
-
-
+import toast from "react-hot-toast";
+import Swal from "sweetalert2";
 function StatCard({ title, value, icon: Icon }) {
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md">
@@ -74,7 +74,7 @@ export default function MyApplicationsPage() {
         setApplications(response.data.proposals);
       }
     } catch (error) {
-      console.log(error);
+      toast.error(error.response?.data?.message || "Unable to load applications");
     } finally {
       setLoading(false);
     }
@@ -106,21 +106,30 @@ export default function MyApplicationsPage() {
     rejected: applications.filter(app => app.status === "Rejected").length
   };
   const handleWithdraw = async (proposalId) => {
+    const result = await Swal.fire({
+        title: "Withdraw Application?",
+        text: "Your application will be removed from this job.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#2563eb",
+        cancelButtonColor: "#6b7280",
+        confirmButtonText: "Yes, Withdraw",
+        cancelButtonText: "Cancel",
+    });
+    if (!result.isConfirmed) return;
     try {
-        console.log("Deleting proposal:", proposalId);
-
         const response = await withdrawApplication(proposalId);
-
-        alert(response.data.message);
-
-        setApplications(prev =>
-            prev.filter(app => app.id !== proposalId)
+        toast.success(response.data.message);
+        setApplications((prev) =>
+            prev.filter((app) => app.id !== proposalId)
         );
-
     } catch (error) {
         console.log(error);
         console.log(error.response?.data);
-        alert(error.response?.data?.message || "Error withdrawing application");
+        toast.error(
+            error.response?.data?.message ||
+            "Error withdrawing application"
+        );
     }
   };
   return (

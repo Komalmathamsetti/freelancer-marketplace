@@ -2,6 +2,7 @@
 import { useState,useEffect } from "react";
 import { useNavigate,useParams } from "react-router-dom";
 import { getSingleJob, updateJob } from "../../services/jobServices";
+import toast from "react-hot-toast";
 export default function EditJobPage() {
   const navigate=useNavigate();
   const {id}=useParams();
@@ -26,7 +27,7 @@ export default function EditJobPage() {
         setJob(response.data.job);
       }
     } catch (error) {
-      console.log(error);
+      toast.error(error.response?.data?.message || "Unable to get Job");
     } finally {
       if (!ignore) {
         setLoading(false);
@@ -42,10 +43,10 @@ export default function EditJobPage() {
     try{
         setSaving(true);
         const response=await updateJob(id,job);
-        alert(response.data.message);
+        toast.success(response.data.message);
         navigate("/client/my-jobs");
     }catch(error){
-        console.log(error);
+      toast.error(error.response?.data?.message || "Unable to update job");
     }finally{
         setSaving(false);
     }

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getFreelancerProfile } from "../../services/profileServices";
+import toast from "react-hot-toast";
 export default function ViewFreelancerProfile() {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -15,7 +16,7 @@ export default function ViewFreelancerProfile() {
                     setProfile(response.data.profile);
                 }
             } catch(error){
-                console.log(error);
+              toast.error(error.response?.data?.message || "Unable to get the profile");
             }
         };
         fetchProfile();

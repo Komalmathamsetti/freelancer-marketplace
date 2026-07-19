@@ -22,7 +22,7 @@ FaLinkedin,
 FaInstagram,
 FaEnvelope
 } from "react-icons/fa";
-
+import toast from "react-hot-toast";
 export default function SkillSphereLanding() {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -352,7 +352,7 @@ export default function SkillSphereLanding() {
               {/* Search Button */}
               <button onClick={()=>{
                 if (!user) {
-                  alert("Please login to search jobs.");
+                  toast("Please login to search jobs.");
                   navigate("/login");
                   return;
                 }

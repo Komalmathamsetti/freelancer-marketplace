@@ -2,6 +2,7 @@ import { useState,useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAllJobs } from "../../services/jobServices";
 import { saveJob } from "../../services/freelancerServices";
+import toast from "react-hot-toast";
 export default function BrowseJobsPage() {
     const navigate = useNavigate();
     const [jobs,setJobs] = useState([]);
@@ -12,7 +13,7 @@ export default function BrowseJobsPage() {
             const response = await getAllJobs();
             setJobs(response.data.jobs);
         } catch (error) {
-            console.log(error);
+          toast.error(error.response?.data?.message || "Unable to load jobs");
         } finally {
             setLoading(false);
         }
@@ -29,14 +30,14 @@ export default function BrowseJobsPage() {
   const handleSaveJob=async(jobId)=>{
     try{
         const response=await saveJob(jobId);
-        alert(response.data.message);
+        toast.success(response.data.message);
     }
     catch(error){
         if(error.response){
-            alert(error.response.data.message);
+          toast.error(error.response.data.message);
         }
         else{
-            console.log(error);
+          toast.error(error.response?.data?.message || "Unable to save the Job");
         }
     }
   };

@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getMyJobs,deleteJob } from "../../services/jobServices";
+import toast from "react-hot-toast";
+import Swal from "sweetalert2";
 export default function MyJobsPage() {
   const navigate = useNavigate();
   const [jobs,setJobs] = useState([]);
@@ -41,15 +43,26 @@ export default function MyJobsPage() {
     );
   }
   const handleDelete=async(id)=>{
-    const confirmDelete=
-    window.confirm("Delete this job?");
-    if(!confirmDelete) return;
-    try{
+    const result = await Swal.fire({
+        title: "Delete Job?",
+        text: "This action cannot be undone.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#2563eb",
+        cancelButtonColor: "#6b7280",
+        confirmButtonText: "Yes, Delete",
+        cancelButtonText: "Cancel",
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
         await deleteJob(id);
-        alert("Job Deleted");
+        toast.success("Job deleted successfully");
+        // Refresh jobs
         loadJobs();
     }catch(error){
-        console.log(error);
+        toast.error(error.response?.data?.message || "Unable to delete Job");
     }
   }
   return (

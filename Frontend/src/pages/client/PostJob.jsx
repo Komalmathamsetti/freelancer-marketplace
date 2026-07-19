@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createJob } from "../../services/jobServices";
+import toast from "react-hot-toast";
 export default function JobPostingPage() {
     const navigate = useNavigate();
     const [formData,setFormData] = useState({
@@ -18,11 +19,11 @@ export default function JobPostingPage() {
     const handleSubmit = async()=>{
         try{
             await createJob(formData);
-            alert("Job Posted Successfully");
+            toast.success("Job Posted Successfully");
             navigate("/client/dashboard");
         }catch(error){
             console.log(error);
-            alert("Falied to post the job");
+            toast.error("Falied to post the job");
         }
     };
   return (

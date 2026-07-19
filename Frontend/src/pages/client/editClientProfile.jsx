@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getProfile,updateProfile } from "../../services/profileServices";
+import toast from "react-hot-toast";
 export default function EditClientProfile() {
     const navigate = useNavigate();
     const [formData,setFormData] = useState({
@@ -24,7 +25,7 @@ export default function EditClientProfile() {
         });
       }
     }catch (error) {
-      console.log(error);
+      toast.error(error.response?.data?.message || "Unable to get Profile");
     }
     };
     fetchProfile();
@@ -46,11 +47,10 @@ export default function EditClientProfile() {
             website: formData.website,
             contact_number: formData.contact_number
            });
-           alert("Profile Updated");
+           toast.success("Profile Updated");
            navigate("/client/dashboard");
        }catch(error){
-        console.log(error)
-;
+        toast.error(error.response?.data?.message || "Unable to update profile");
        }
     };
   return (

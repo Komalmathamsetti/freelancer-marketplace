@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getProfile,updateProfile,uploadResume,generateBio } from "../../services/profileServices";
+import toast from "react-hot-toast";
 export default function EditFreelancerProfile() {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user"));
@@ -31,7 +32,7 @@ export default function EditFreelancerProfile() {
             });
         }
     } catch (error) {
-        console.log(error);
+      toast.error(error.response?.data?.message || "Unable to find profile");
     }
   };
   useEffect(() => {
@@ -42,7 +43,7 @@ export default function EditFreelancerProfile() {
   }, []);
   const handleResumeUpload = async () => {
     if (!resume) {
-        alert("Please select a resume");
+        toast.error("Please select a resume");
         return;
     }
     try {
@@ -50,12 +51,12 @@ export default function EditFreelancerProfile() {
         const data = new FormData();
         data.append("resume", resume);
         const response = await uploadResume(data);
-        alert(response.data.message);
+        toast.success(response.data.message);
         await fetchProfile();
         setResume(null);
     } catch (error) {
         console.log(error);
-        alert(
+        toast.error(
             error.response?.data?.message ||
             "Resume Upload Failed"
         );
@@ -77,7 +78,7 @@ export default function EditFreelancerProfile() {
       }));
     }catch(error){
       console.log(error);
-      alert("Failed to generate bio");
+      toast.error("Failed to generate bio");
     }finally{
       setGeneratingBio(false);
     }
@@ -97,11 +98,11 @@ export default function EditFreelancerProfile() {
             website:"",
             contact_number:""
         });
-        alert("Profile Updated Successfully");
+        toast.success("Profile Updated Successfully");
         navigate("/freelancer/dashboard");
     }
     catch(error){
-        alert("Update failed");
+        toast.error("Update failed");
         console.log(error);
     }
   };

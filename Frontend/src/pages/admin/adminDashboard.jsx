@@ -16,6 +16,8 @@ import {
   LayoutDashboard,
 } from "lucide-react";
 import { getDashboardStats,getRecentActivity } from "../../services/adminServices";
+import toast from "react-hot-toast";
+import Swal from "sweetalert2";
 const adminItems = [
   {label:"Home",icon: Home},
   {label:"Dashboard",icon:LayoutDashboard},
@@ -182,7 +184,7 @@ export default function AdminDashboard() {
             }
         }
         catch(error){
-          console.log(error);
+          toast.error(error.response?.data?.message || "Unable to load dashboard");
         }
         finally{
             if(!ignore){
@@ -195,10 +197,19 @@ export default function AdminDashboard() {
       ignore=true;
     };
     },[]);
-    const handleLogout = () => {
-     localStorage.removeItem("token");
-     localStorage.removeItem("user");
-     navigate("/login");
+    const handleLogout = async() => {
+    const result = await Swal.fire({
+        title: "Logout?",
+        text: "Do you want to logout?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Logout",
+        cancelButtonText: "Stay",
+      });
+      if (result.isConfirmed) {
+        localStorage.clear();
+        navigate("/login");
+      }
     };
 
   const reports = [

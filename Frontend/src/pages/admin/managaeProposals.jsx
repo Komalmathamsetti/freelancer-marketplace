@@ -1,7 +1,8 @@
 import { useMemo, useState, useEffect } from "react";
 import { getAllProposals, deleteProposal } from "../../services/adminServices";
 import { useNavigate } from "react-router-dom";
-
+import toast from "react-hot-toast";
+import Swal from "sweetalert2";
 const statusClasses = {
   Pending: "bg-yellow-100 text-yellow-700 ring-yellow-200",
   Accepted: "bg-green-100 text-green-700 ring-green-200",
@@ -23,7 +24,7 @@ export default function ProposalManagementPage() {
                 setProposals(response.data.proposals);
             }
         }catch(error){
-            console.log(error);
+          toast.error(error.response?.data?.message || "Unable to load proposals");
 
         }finally{
             setLoading(false);
@@ -53,22 +54,27 @@ export default function ProposalManagementPage() {
     );
   }
   const handleDelete = async(id)=>{
-    const confirmDelete = window.confirm(
-        "Delete this proposal?"
-    );
-    if(!confirmDelete){
-        return;
-    }
+    const result = await Swal.fire({
+        title: "Delete Proposal?",
+        text: "This proposal will be permanently deleted. This action cannot be undone.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#2563eb",
+        cancelButtonColor: "#6b7280",
+        confirmButtonText: "Yes, Delete",
+        cancelButtonText: "Cancel",
+    });
+    if (!result.isConfirmed) return;
     try{
         const response = await deleteProposal(id);
-        alert(response.data.message);
+        toast.success(response.data.message);
         setProposals(
             proposals.filter(
                 proposal=>proposal.id!==id
             )
         );
     }catch(error){
-        console.log(error);
+      toast.error(error.response?.data?.message || "Unable to delete the proposal.");
     }
   }
   return (

@@ -1,7 +1,8 @@
 import { useMemo, useState, useEffect } from "react";
 import { getAllJobs,deleteJob } from "../../services/adminServices";
 import { useNavigate } from "react-router-dom";
-
+import toast from "react-hot-toast";
+import Swal from "sweetalert2";
 export default function AdminManageJobsPage() {
   const navigate = useNavigate();
   const [jobs,setJobs]=useState([]);
@@ -18,7 +19,7 @@ export default function AdminManageJobsPage() {
             }
         }
         catch(error){
-            console.log(error);
+          toast.error(error.response?.data?.message || "Unable to load jobs");
         }
         finally{
             if(!ignore){
@@ -54,18 +55,26 @@ export default function AdminManageJobsPage() {
     );
   }
   const handleDelete=async(id)=>{
-    if(!window.confirm("Delete this job?")){
-        return;
-    }
+    const result = await Swal.fire({
+        title: "Delete Job?",
+        text: "This job will be permanently deleted. This action cannot be undone.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#2563eb",
+        cancelButtonColor: "#6b7280",
+        confirmButtonText: "Yes, Delete",
+        cancelButtonText: "Cancel",
+    });
+    if(!result.isConfirmed)return;
     try{
         const response=await deleteJob(id);
-        alert(response.data.message);
+        toast.success(response.data.message);
         setJobs(prev=>
             prev.filter(job=>job.id!==id)
         );
     }
     catch(error){
-        console.log(error);
+      toast.error(error.response?.data?.message || "Unable to delete job");
     }
   };
   return (

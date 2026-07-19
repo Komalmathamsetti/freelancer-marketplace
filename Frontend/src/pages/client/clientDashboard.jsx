@@ -15,6 +15,8 @@ import {
   User
 } from "lucide-react";
 import { getMyJobs,getDashboardStats } from "../../services/jobServices";
+import toast from "react-hot-toast";
+import Swal from "sweetalert2";
 const clientItems = [
   {label:"Home",icon: Home },
   { label: "Dashboard", icon: LayoutDashboard,active:true },
@@ -155,18 +157,27 @@ export default function ClientDashboard() {
                 setJobs(response.data.jobs);
             }
         } catch (error) {
-            console.log(error);
+          toast.error(error.response?.data?.message || "Unable to load jobs");
         } finally {
             setLoading(false);
         }
     };
     loadJobs();
     }, [navigate]);
-    const handleLogout = () => {
-     localStorage.removeItem("token");
-     localStorage.removeItem("user");
-     navigate("/login");
-    };
+    const handleLogout = async() => {
+    const result = await Swal.fire({
+    title: "Logout?",
+    text: "Do you want to logout?",
+    icon: "question",
+    showCancelButton: true,
+    confirmButtonText: "Logout",
+    cancelButtonText: "Stay",
+  });
+  if (result.isConfirmed) {
+    localStorage.clear();
+    navigate("/login");
+  }
+  };
     useEffect(() => {
     let ignore = false;
     async function loadDashboard() {

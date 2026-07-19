@@ -1,7 +1,7 @@
 import { useMemo, useState,useEffect } from "react";
 import { getClientProposals } from "../../services/proposalServices";
 import { useNavigate } from "react-router-dom";
-
+import toast from "react-hot-toast";
 export default function ClientProposals() {
   const navigate = useNavigate();
 
@@ -20,7 +20,7 @@ export default function ClientProposals() {
                 setProposals(response.data.proposals);
             }
         } catch(error){
-            console.log(error);
+          toast.error(error.response?.data?.message || "Unable to load proposals");
         } finally{
             setLoading(false);
         }
