@@ -113,11 +113,6 @@ export default function ApplicantsPage() {
             >
               <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
                 <div className="flex flex-col gap-5 sm:flex-row">
-                  <img
-                    src={applicant.photo}
-                    alt={applicant.freelancerName}
-                    className="h-24 w-24 rounded-3xl object-cover ring-4 ring-blue-50"
-                  />
 
                   <div className="space-y-4">
                     <div>

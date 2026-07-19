@@ -1,8 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const authMiddleware = require("../middleware/authMiddleware");
-const { getProfile, updateProfile,getFreelancerProfile } = require("../controllers/profileController");
-router.get("/",authMiddleware,getProfile);
-router.put("/",authMiddleware,updateProfile);
-router.get("/freelancer/:id",authMiddleware,getFreelancerProfile);
+const verifyToken = require("../middleware/authMiddleware");
+const { getProfile, updateProfile,getFreelancerProfile,uploadResumeController } = require("../controllers/profileController");
+const uploadResume = require("../middleware/uploadResume");
+router.get("/",verifyToken,getProfile);
+router.put("/",verifyToken,updateProfile);
+router.get("/freelancer/:id",verifyToken,getFreelancerProfile);
+router.post("/upload-resume",verifyToken,uploadResume.single("resume"),uploadResumeController);
 module.exports = router;

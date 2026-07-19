@@ -102,3 +102,39 @@ exports.recommendFeatures = async(req,res)=>{
         });
     }
 };
+exports.generateBio = async(req,res)=>{
+    try{
+        const {skills,experience,hourly_rate} = req.body;
+        if(!skills || !experience){
+            return res.status(400).json({
+               success:false,
+               message:"Skills and experience are required"
+            });
+        }
+        const prompt = `You are an expert career coach.
+        Write a professional freelancer bio.
+        Details:
+        Skills: ${skills}
+        Experience: ${experience}
+        Hourly Rate: ₹${hourly_rate}/hr
+        Requirements:
+        - 80-120 words.
+        - Professional tone.
+        - Mention expertise.
+        - Mention client-focused attitude.
+        - Mention problem-solving ability.
+        - Do NOT use bullet points.
+        - Return ONLY the bio text.`
+        const aiResponse = await queryAI(prompt);
+        res.json({
+            success:true,
+            bio: aiResponse.trim(),
+        });
+    }catch(error){
+        console.log(error);
+        res.status(500).json({
+            success:false,
+            message:"Failed to generate bio"
+        });
+    }
+};

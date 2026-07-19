@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 require("dotenv").config();
 const http = require("http");
+const path = require("path");
 const { Server } = require("socket.io");
 const db = require("../Backend/config/db");
 const authRoutes = require("./routes/authRoutes");
@@ -37,6 +38,10 @@ app.use("/api/proposals",proposalRoutes);
 app.use("/api/messages",messageRoutes);
 app.use("/api/reviews",reviewRoutes);
 app.use("/api/ai",aiRoutes);
+app.use(
+    "/uploads",
+    express.static(path.join(__dirname, "uploads"))
+);
 app.get("/api/profile", authMiddleware, (req, res) => {
   res.json({success: true, user: req.user,});
 });

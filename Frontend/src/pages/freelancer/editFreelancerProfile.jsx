@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getProfile,updateProfile } from "../../services/profileServices";
+import { getProfile,updateProfile,uploadResume,generateBio } from "../../services/profileServices";
 export default function EditFreelancerProfile() {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user"));
@@ -11,27 +11,77 @@ export default function EditFreelancerProfile() {
     hourly_rate: "",
     experience: "",
     portfolio: "",
+    resume_url:"",
   });
-   useEffect(() => {
-    const fetchProfile = async () => {
-        try {
-            const response = await getProfile();
-            if (response.data.profile) {
-                setFormData({
-                    full_name:response.data.user?.full_name||"",
-                    bio: response.data.profile.bio || "",
-                    skills: response.data.profile.skills || "",
-                    hourly_rate: response.data.profile.hourly_rate || "",
-                    experience: response.data.profile.experience || "",
-                    portfolio: response.data.profile.portfolio || "",
-                });
-            }
-        } catch (error) {
-           console.log(error);
+  const [resume,setResume] = useState(null);
+  const [uploading,setUploading] = useState(false);
+  const [generatingBio,setGeneratingBio] = useState(false);
+   const fetchProfile = async () => {
+    try {
+        const response = await getProfile();
+        if (response.data.profile) {
+            setFormData({
+                full_name: response.data.user?.full_name || "",
+                bio: response.data.profile.bio || "",
+                skills: response.data.profile.skills || "",
+                hourly_rate: response.data.profile.hourly_rate || "",
+                experience: response.data.profile.experience || "",
+                portfolio: response.data.profile.portfolio || "",
+                resume_url: response.data.profile.resume_url || "",
+            });
         }
+    } catch (error) {
+        console.log(error);
+    }
+  };
+  useEffect(() => {
+    const loadProfile = async()=>{
+      await fetchProfile();
     };
-    fetchProfile();
+    loadProfile();
   }, []);
+  const handleResumeUpload = async () => {
+    if (!resume) {
+        alert("Please select a resume");
+        return;
+    }
+    try {
+        setUploading(true);
+        const data = new FormData();
+        data.append("resume", resume);
+        const response = await uploadResume(data);
+        alert(response.data.message);
+        await fetchProfile();
+        setResume(null);
+    } catch (error) {
+        console.log(error);
+        alert(
+            error.response?.data?.message ||
+            "Resume Upload Failed"
+        );
+    } finally {
+      setUploading(false);
+    }
+  };
+  const handleGenerateBio = async()=>{
+    try{
+      setGeneratingBio(true);
+      const response = await generateBio({
+        skills:formData.skills,
+        experience:formData.experience,
+        hourly_rate:formData.hourly_rate,
+      });
+      setFormData((prev)=>({
+        ...prev,
+        bio:response.data.bio,
+      }));
+    }catch(error){
+      console.log(error);
+      alert("Failed to generate bio");
+    }finally{
+      setGeneratingBio(false);
+    }
+  };
   const handleChange = (e) => {
     setFormData({
         ...formData,
@@ -103,7 +153,12 @@ export default function EditFreelancerProfile() {
                   />
                 </div>
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">Bio</label>
+                  <div className="mb-2 flex items-center justify-between">
+                    <label className="text-sm font-medium text-slate-700">Bio</label>
+                    <button type="button" onClick={handleGenerateBio} disabled={generatingBio} className="rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-purple-700 disabled:opacity-50">
+                      {generatingBio ? "Generating..." : formData.bio? "🔄 Regenerate Bio": "✨ Generate Bio"}
+                    </button>
+                  </div>
                   <textarea name="bio" value={formData.bio} onChange={handleChange} rows="4"
                     className="w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
                   />
@@ -133,6 +188,21 @@ export default function EditFreelancerProfile() {
                   />
                 </div>
               </div>
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">Resume (PDF)</label>
+                <input type="file" accept=".pdf" onChange={(e)=>setResume(e.target.files[0])} className="w-full border rounded-lg p-2"/>
+              </div>
+              <button onClick = {handleResumeUpload} disabled={!resume || uploading} className="w-full rounded-2xl bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-700 sm:w-auto">
+                {uploading ? "uploading...":"Upload Resume"}
+              </button>
+              {formData.resume_url && (
+                <div className="mt-5 rounded-xl border border-green-200 bg-green-50 p-4">
+                  <h3 className="font-semibold text-green-700">Current Resume</h3>
+                  <a href={`${import.meta.env.VITE_API_URL}${formData.resume_url}`} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block text-blue-600 hover:underline">
+                    📄 View Resume
+                  </a>
+                </div>
+              )}
               <button onClick={handleSubmit} className="w-full rounded-2xl bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-700 sm:w-auto">
                 Save Changes
               </button>

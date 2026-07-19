@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { getHomeStats } from "../../services/homeServices";
 import {
   ArrowRight,
   BadgeCheck,
@@ -93,16 +94,8 @@ const team = [
   },
 ];
 
-const stats = [
-  { label: "Freelancers", value: 250000, suffix: "+" },
-  { label: "Clients", value: 180000, suffix: "+" },
-  { label: "Jobs Posted", value: 1500000, suffix: "+" },
-  { label: "Projects Completed", value: 3200000, suffix: "+" },
-];
-
 function CountUp({ end, suffix = "+" }) {
   const [count, setCount] = useState(0);
-
   useEffect(() => {
     let current = 0;
     const duration = 1600;
@@ -137,6 +130,29 @@ function CountUp({ end, suffix = "+" }) {
 
 export default function AboutUsPage() {
   const navigate = useNavigate();
+  const [stats,setStats] = useState({
+   freelancers:0,
+   clients:0,
+   jobs:0,
+   completedProjects:0
+  });
+  useEffect(()=>{
+    const fetchStats = async()=>{
+      try{
+          const response = await getHomeStats();
+          setStats(response.data);
+      }catch(error){
+        console.log(error);
+      }
+    };
+    fetchStats();
+  },[]);
+  const platformStats = [
+    {label:"Freelancers",value:stats.freelancers,suffix:"+"},
+    {label:"Clients",value:stats.clients,suffix:"+"},
+    {label:"Jobs Posted",value:stats.jobs,suffix:"+"},
+    {label:"Completed Projects",value:stats.completedProjects,suffix:"+"},
+  ];
   return (
     <div className="min-h-screen overflow-hidden bg-linear-to-b from-blue-50 via-white to-blue-100 text-slate-900">
       <div className="pointer-events-none absolute inset-0 opacity-50">
@@ -311,7 +327,7 @@ export default function AboutUsPage() {
           </div>
 
           <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {stats.map((stat) => (
+            {platformStats.map((stat) => (
               <div
                 key={stat.label}
                 className="rounded-3xl border border-white/20 bg-white/10 p-6 text-center text-white shadow-lg backdrop-blur-xl"

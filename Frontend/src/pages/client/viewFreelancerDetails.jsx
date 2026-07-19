@@ -155,26 +155,41 @@ export default function ViewFreelancerProfile() {
           {/* Portfolio */}
 
           <div className="rounded-3xl bg-linear-to-r from-blue-50 to-blue-100 p-6 shadow-lg">
-
             <p className="text-sm font-semibold uppercase text-blue-700">
               Portfolio
             </p>
-
-            <a
-              href={profile.portfolio}
+            {profile.portfolio ? (
+              <a href={profile.portfolio}
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               className="mt-3 block break-all text-blue-700 hover:underline"
-            >
-              {profile.portfolio}
-            </a>
-
+              >
+                Visit Portfolio
+              </a>
+              ) : (
+              <p className="mt-3 text-gray-600">
+                Portfolio not added.
+              </p>
+            )}
           </div>
-
+          {/* Resume */}
+          <div className="rounded-3xl bg-linear-to-r from-orange-50 to-orange-100 p-6 shadow-lg">
+            <p className="text-sm font-semibold uppercase text-orange-700">
+              Resume
+            </p>
+            {profile.resume_url ? (
+              <a href={`${import.meta.env.VITE_API_URL}${profile.resume_url}`} target="_blank" rel="noopener noreferrer"
+              className="mt-3 inline-flex items-center rounded-xl bg-orange-600 px-4 py-2 font-medium text-white transition hover:bg-orange-700">
+                📄 View Resume
+              </a>
+              ) : (
+              <p className="mt-3 text-gray-600">
+                Resume not uploaded.
+              </p>
+            )}
+          </div>
         </div>
-
       </div>
-
     </div>
   </div>
   );

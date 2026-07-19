@@ -28,7 +28,7 @@ exports.updateProfile = async(req,res)=>{
                 WHERE id = $2`,[full_name,userId]
         );
         const parsedHourlyRate = hourly_rate === "" || hourly_rate == null ? null: Number(hourly_rate);
-        const parsedExperience = experience === "" || experience == null ? null: Number(experience);
+        const parsedExperience = experience === "" || experience == null ? null: experience.trim();
         const check = await pool.query(
             `SELECT * FROM profiles
             WHERE user_id = $1`,[userId]
@@ -81,4 +81,30 @@ exports.getFreelancerProfile = async(req,res)=>{
         console.log(error);
         req.status(500).json({success:false,message:"Server Error"});
     }
+};
+exports.uploadResumeController = async(req,res)=>{
+   try{
+      const userId = req.user.id;
+      if(!req.file){
+        return res.status(400).json({
+            success:false,
+            message:"Please Upload a PDF"
+        });
+      }
+      const resumePath = `/uploads/resumes/${req.file.filename}`;
+      const result = await pool.query(
+        `UPDATE profiles
+        SET resume_url = $1
+        WHERE user_id = $2
+        RETURNING *`,[resumePath,userId]
+      );
+      res.json({
+        success:true,
+        message:"Resume uploaded successfully",
+        profile:result.rows[0]
+      });
+   }catch(error){
+    console.log(error);
+    res.status(500).json({success:false,message:"Server Error"});
+   }
 };

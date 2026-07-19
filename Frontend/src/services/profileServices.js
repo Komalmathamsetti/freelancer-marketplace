@@ -11,4 +11,10 @@ API.interceptors.request.use((config)=>{
 });
 export const getProfile = ()=>API.get("/profile");
 export const updateProfile = (data)=>API.put("/profile",data);
+export const uploadResume = (formData)=>API.post("/profile/upload-resume",formData,{
+    headers:{
+        "Content-type":"multipart/form-data",
+    },
+});
+export const generateBio = (data)=>API.post("/ai/generate-bio",data);
 export const getFreelancerProfile = (id)=>API.get(`/profile/freelancer/${id}`);
