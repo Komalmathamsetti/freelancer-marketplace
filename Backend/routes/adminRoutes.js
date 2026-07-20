@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const verifyToken = require("../middleware/authMiddleware");
 const authorizeRole = require("../middleware/roleMiddleware");
-const { getDashboardStats, getAllUsers, getAllJobs,deleteJob,deleteUser,getAllProposals,deleteProposal,getPlatformAnalytics,getRecentActivity,getPlatformInsights } = require("../controllers/adminController");
+const { getDashboardStats, getAllUsers, getAllJobs,deleteJob,deleteUser,getAllProposals,deleteProposal,getPlatformAnalytics,getRecentActivity,getPlatformInsights,getUserProfile } = require("../controllers/adminController");
 router.get("/dashboard",verifyToken,authorizeRole("admin"),getDashboardStats);
 router.get("/users",verifyToken,authorizeRole("admin"),getAllUsers);
 router.get("/jobs",verifyToken,authorizeRole("admin"),getAllJobs);
@@ -13,4 +13,5 @@ router.delete("/proposals/:id",verifyToken,authorizeRole("admin"),deleteProposal
 router.get("/analytics",verifyToken,authorizeRole("admin"),getPlatformAnalytics);
 router.get("/recent-activity", verifyToken, authorizeRole("admin"), getRecentActivity);
 router.get("/insights",verifyToken,authorizeRole("admin"),getPlatformInsights);
+router.get("/users/:id",verifyToken,authorizeRole("admin"),getUserProfile);
 module.exports = router;

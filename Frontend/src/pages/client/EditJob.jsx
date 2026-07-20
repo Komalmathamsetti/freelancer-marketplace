@@ -5,6 +5,8 @@ import { getSingleJob, updateJob } from "../../services/jobServices";
 import toast from "react-hot-toast";
 export default function EditJobPage() {
   const navigate=useNavigate();
+  const user = JSON.parse(localStorage.getItem("user"));
+  const isAdmin = user?.role === "admin";
   const {id}=useParams();
   const [loading,setLoading]=useState(true);
   const [saving,setSaving]=useState(false);
@@ -44,7 +46,11 @@ export default function EditJobPage() {
         setSaving(true);
         const response=await updateJob(id,job);
         toast.success(response.data.message);
-        navigate("/client/my-jobs");
+        if(isAdmin){
+          navigate("/admin/jobs");
+        }else{
+          navigate("/client/my-jobs");
+        }
     }catch(error){
       toast.error(error.response?.data?.message || "Unable to update job");
     }finally{
@@ -169,7 +175,7 @@ export default function EditJobPage() {
           </div>
 
           <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
-            <button onClick={()=>navigate("/client/my-jobs")} className="rounded-2xl border border-blue-600 bg-white px-6 py-3 font-medium text-blue-600 transition hover:bg-blue-50">
+            <button onClick={()=>navigate(isAdmin?"/admin/jobs":"/client/my-jobs")} className="rounded-2xl border border-blue-600 bg-white px-6 py-3 font-medium text-blue-600 transition hover:bg-blue-50">
               Cancel
             </button>
 

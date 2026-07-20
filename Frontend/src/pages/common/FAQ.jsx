@@ -387,7 +387,7 @@ export default function FAQPage() {
           </p>
           <div className="flex gap-5 text-xs">
             <Link to="/privacy" className="hover:text-white transition">Privacy</Link>
-            <Link to="terms-conditions" className="hover:text-white transition">Terms</Link>
+            <Link to="/terms-conditions" className="hover:text-white transition">Terms</Link>
           </div>
         </div>
       </footer>

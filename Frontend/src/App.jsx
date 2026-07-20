@@ -28,6 +28,8 @@ import FAQPage from "./pages/common/FAQ";
 import TermsAndConditions from "./pages/common/TermsAndConditions";
 import PrivacyPolicy from "./pages/common/PrivacyPolicy";
 import ViewFreelancerProfile from "./pages/client/viewFreelancerDetails";
+import AdminUserProfilePage from "./pages/admin/adminUserProfilePage";
+import NotificationPage from "./pages/common/Notifications";
 function App() {
 return (
 <BrowserRouter>
@@ -40,6 +42,7 @@ return (
 <Route path="/faq" element={<FAQPage/>} />
 <Route path="/privacy" element={<PrivacyPolicy/>} />
 <Route path="/terms-conditions" element={<TermsAndConditions/>}/>
+<Route path="/notifications" element={<NotificationPage/>} />
 <Route
 path="/freelancer/dashboard"
 element={<FreelancerDashboard />}
@@ -93,8 +96,16 @@ element={<AdminDashboard />}
   element={<ManageUsers/>}
 />
 <Route 
+  path="/admin/users/:id"
+  element={<AdminUserProfilePage/>}
+/>
+<Route 
   path="/admin/jobs"
   element={<ManageJobs/>}
+/>
+<Route 
+  path="/admin/edit-job/:id"
+  element={<EditJob/>}
 />
 <Route 
   path="/admin/proposals"

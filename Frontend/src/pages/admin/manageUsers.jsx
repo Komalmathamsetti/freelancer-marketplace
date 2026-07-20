@@ -175,11 +175,8 @@ export default function AdminManageUsersPage() {
               </div>
 
               <div className="mt-6 grid grid-cols-3 gap-3">
-                <button className="rounded-xl bg-blue-600 px-3 py-3 text-sm font-medium text-white transition duration-200 hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-200 active:scale-[0.98]" disabled>
+                <button onClick={()=>navigate(`/admin/users/${user.id}`)} className="rounded-xl bg-blue-600 px-3 py-3 text-sm font-medium text-white transition duration-200 hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-200 active:scale-[0.98]">
                   View Profile
-                </button>
-                <button disabled className="rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm font-medium text-slate-700 transition duration-200 hover:border-blue-500 hover:text-blue-600 hover:shadow-md active:scale-[0.98]">
-                  Edit User
                 </button>
                 <button onClick={()=>handleDelete(user.id)} className="rounded-xl bg-rose-600 px-3 py-3 text-sm font-medium text-white transition duration-200 hover:bg-rose-700 hover:shadow-lg hover:shadow-rose-200 active:scale-[0.98]">
                   Delete

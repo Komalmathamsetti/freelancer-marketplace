@@ -6,6 +6,8 @@ import { saveJob } from "../../services/freelancerServices";
 import toast from "react-hot-toast";
 export default function JobDetailsPage() {
   const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem("user"));
+  const isAdmin = user?.role === "admin";
   const { id } = useParams();
   const [job, setJob] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -125,39 +127,38 @@ export default function JobDetailsPage() {
         </div>
 
         <div className="mt-8 flex flex-col gap-4 sm:flex-row">
-          {applicationStatus ? (
-            <button disabled className="rounded-2xl bg-gray-400 px-6 py-3 font-semibold text-white cursor-not-allowed">
-              {applicationStatus}
-            </button>
+          {!isAdmin && (
+            <>
+            {applicationStatus ? (
+              <button disabled className="rounded-2xl bg-gray-400 px-6 py-3 font-semibold text-white cursor-not-allowed">
+                {applicationStatus}
+              </button>
             ) : (
-            <button onClick={() => {
-            const token = localStorage.getItem("token");
-            const user = JSON.parse(localStorage.getItem("user"));
-
-            if (!token) {
-                alert("Please login as a freelancer.");
+            <button onClick={() => { 
+              const token = localStorage.getItem("token");
+              if (!token) {
+                toast.error("Please login as a freelancer.");
                 navigate("/login");
                 return;
-            }
-
-            if (user.role !== "freelancer") {
-                alert("Only freelancers can apply.");
+              }
+              if (user.role !== "freelancer") {
+                toast.error("Only freelancers can apply.");
                 return;
-            }
-
-            setShowModal(true);
-          }}className="rounded-2xl bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700">
-            Apply
-          </button>
-           )}
-          <button onClick={()=>handleSaveJob(job.id)} className="rounded-2xl border border-blue-600 bg-white px-6 py-3 font-semibold text-blue-600 hover:bg-blue-50">
+              }
+              setShowModal(true);
+            }}className="rounded-2xl bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700">
+              Apply
+            </button>
+          )}
+          <button onClick={() => handleSaveJob(job.id)} className="rounded-2xl border border-blue-600 bg-white px-6 py-3 font-semibold text-blue-600 hover:bg-blue-50">
             Save Job
           </button>
-          <button onClick={() => navigate("/freelancer/jobs")}
-            className="rounded-2xl border border-blue-200 bg-white px-6 py-3 font-semibold text-blue-700 transition hover:bg-blue-50">
-            ← Back to Browse Jobs
-          </button>
-        </div>
+        </>
+      )}
+      <button onClick={() =>navigate(isAdmin ? "/admin/jobs" : "/freelancer/jobs")} className="rounded-2xl border border-blue-200 bg-white px-6 py-3 font-semibold text-blue-700 transition hover:bg-blue-50">
+        {isAdmin ? "← Back to Jobs" : "← Back to Browse Jobs"}
+      </button>
+      </div>
       </div>
     </div>
     {showModal && (

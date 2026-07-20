@@ -182,7 +182,7 @@ export default function AdminManageJobsPage() {
                 <button onClick={()=>navigate(`/jobs/${job.id}`)} className="rounded-xl bg-[#2563EB] px-3 py-2.5 text-sm font-medium text-white transition hover:bg-blue-700 hover:shadow-md">
                   View Job
                 </button>
-                <button onClick={()=>navigate(`/client/edit-job/${job.id}`)} className="rounded-xl border border-[#2563EB] px-3 py-2.5 text-sm font-medium text-[#2563EB] transition hover:bg-blue-50">
+                <button onClick={()=>navigate(`/admin/edit-job/${job.id}`)} className="rounded-xl border border-[#2563EB] px-3 py-2.5 text-sm font-medium text-[#2563EB] transition hover:bg-blue-50">
                   Edit Job
                 </button>
                 <button onClick={()=>handleDelete(job.id)} className="rounded-xl bg-red-600 px-3 py-2.5 text-sm font-medium text-white transition hover:bg-red-700 hover:shadow-md">

@@ -18,7 +18,6 @@ export default function ClientJobDetails() {
       try {
         setLoading(true);
         const response = await getClientJob(id);
-        toast(response.data);
         if (response.data.success) {
           setJob(response.data.job);
         }
@@ -242,10 +241,10 @@ export default function ClientJobDetails() {
             )}
 
             <button
-              onClick={() => navigate("/client/my-jobs")}
+              onClick={() => navigate("/client/proposals")}
               className="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 transition"
             >
-              Back to My Jobs
+              Back to proposals
             </button>
           </div>
         </div>

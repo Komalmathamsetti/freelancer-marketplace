@@ -270,3 +270,43 @@ exports.getPlatformInsights = async (req, res) => {
         });
     }
 };
+exports.getUserProfile = async (req, res) => {
+    try {
+        const { id } = req.params;
+        // Get basic user information
+        const user = await pool.query(
+            `
+            SELECT id, full_name, email, role, phone, profile_image, created_at
+            FROM users
+            WHERE id = $1
+            `,
+            [id]
+        );
+        if (user.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found"
+            });
+        }
+        // Get profile information
+        const profile = await pool.query(
+            `
+            SELECT *
+            FROM profiles
+            WHERE user_id = $1
+            `,
+            [id]
+        );
+        res.json({
+            success: true,
+            user: user.rows[0],
+            profile: profile.rows[0] || null
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            success: false,
+            message: "Server Error"
+        });
+    }
+};

@@ -1,4 +1,5 @@
 const pool = require("../config/db");
+const { createNotification } = require("../services/notificationsService");
 exports.applyJob = async(req,res)=>{
     try{
         const freelancerId = req.user.id;
@@ -43,6 +44,24 @@ exports.applyJob = async(req,res)=>{
             VALUES ($1,$2,$3,$4,$5)
             RETURNING *`,[jobId,freelancerId,proposal_text,bid_amount,estimated_days]
         );
+        const io = req.app.get("io");
+        const jobDetails = await pool.query(
+            `SELECT title,client_id
+            FROM jobs WHERE id = $1`,[jobId]
+        );
+        const freelancer = await pool.query(
+            `SELECT full_name 
+            FROM users
+            WHERE id = $1`,[freelancerId]
+        );
+        await createNotification({
+            io,
+            userId:jobDetails.rows[0].client_id,
+            title:"New Application",
+            message:`${freelancer.rows[0].full_name} applied for '${jobDetails.rows[0].title}`,
+            type:"APPLICATION",
+            relatedId:jobId
+        });
         res.status(201).json({
             success:true,
             message:"Application Submitted",
@@ -133,6 +152,13 @@ exports.acceptProposal = async (req, res) => {
              WHERE id = $1`,
             [id]
         );
+        const rejectedProposals = await pool.query(
+            `
+            SELECT freelancer_id
+            FROM proposals
+            WHERE job_id = $1
+            AND id <> $2`,[proposal.job_id, id]
+        );
         // Reject all other proposals for same job
         await pool.query(
             `UPDATE proposals
@@ -148,6 +174,29 @@ exports.acceptProposal = async (req, res) => {
              WHERE id = $1`,
             [proposal.job_id]
         );
+        const io = req.app.get("io");
+        const jobDetails = await pool.query(
+            `SELECT title
+            FROM jobs
+            WHERE id = $1`,[proposal.job_id]);
+            await createNotification({
+                io,
+                userId: proposal.freelancer_id,
+                title: "Proposal Accepted 🎉",
+                message: `Your proposal for "${jobDetails.rows[0].title}" has been accepted.`,
+                type: "PROPOSAL_ACCEPTED",
+                relatedId: proposal.job_id
+            });
+            for (const rejected of rejectedProposals.rows) {
+                await createNotification({
+                    io,
+                    userId: rejected.freelancer_id,
+                    title: "Proposal Rejected",
+                    message: `Your proposal for "${jobDetails.rows[0].title}" was not selected.`,
+                    type: "PROPOSAL_REJECTED",
+                    relatedId: proposal.job_id,
+                });
+            }
         res.json({
             success: true,
             message: "Proposal Accepted Successfully"
@@ -176,6 +225,19 @@ exports.rejectProposal = async (req, res) => {
                 message: "Proposal not found"
             });
         }
+        const io = req.app.get("io");
+        const jobDetails = await pool.query(
+            `SELECT title
+            FROM jobs
+            WHERE id = $1`,[proposal.rows[0].job_id]);
+            await createNotification({
+                io,
+                userId: proposal.rows[0].freelancer_id,
+                title: "Proposal Rejected",
+                message: `Your proposal for "${jobDetails.rows[0].title}" was rejected.`,
+                type: "PROPOSAL_REJECTED",
+                relatedId: proposal.rows[0].job_id,
+            });
         res.json({
             success: true,
             message: "Proposal Rejected Successfully",
@@ -202,6 +264,28 @@ exports.withdrawApplication = async (req,res)=>{
         if(proposal.rows.length===0){
             return res.status(404).json({success:false,message:"Application Not Found"});
         }
+        const io = req.app.get("io");
+        const jobDetails = await pool.query(
+            `SELECT jobs.id,
+            jobs.title,
+           jobs.client_id
+           FROM jobs
+           JOIN proposals
+           ON jobs.id = proposals.job_id
+           WHERE proposals.id = $1`,[proposalId]
+        );
+        const freelancer = await pool.query(
+            `SELECT full_name
+            FROM users
+            WHERE id = $1`,[freelancerId]);
+            await createNotification({
+                io,
+                userId: jobDetails.rows[0].client_id,
+                title: "Application Withdrawn",
+                message: `${freelancer.rows[0].full_name} withdrew the application for "${jobDetails.rows[0].title}".`,
+                type: "WITHDRAW",
+                relatedId: jobDetails.rows[0].id,
+            });
         await pool.query(
             `
             DELETE FROM proposals

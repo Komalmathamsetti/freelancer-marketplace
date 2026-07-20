@@ -775,7 +775,7 @@ export default function PrivacyPolicy() {
         </div>
         <div>
           © {CURRENT_YEAR} SkillSphere Technologies Pvt. Ltd. All rights reserved. &nbsp;|&nbsp;{" "}
-          <a href="/terms" style={styles.footerLink}>Terms & Conditions</a>
+          <a href="/terms-conditions" style={styles.footerLink}>Terms & Conditions</a>
           &nbsp;|&nbsp;{" "}
           <a href="/privacy" style={styles.footerLink}>Privacy Policy</a>
         </div>

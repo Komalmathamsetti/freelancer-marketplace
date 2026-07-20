@@ -19,3 +19,4 @@ export const deleteJob = (id)=>API.delete(`/admin/jobs/${id}`);
 export const getPlatformAnalytics = () =>API.get("/admin/analytics");
 export const getRecentActivity = () =>API.get("/admin/recent-activity");
 export const getPlatformInsights = () =>API.get("/admin/insights");
+export const getUserProfile = (id) =>API.get(`/admin/users/${id}`);

@@ -1,9 +1,24 @@
 const pool = require("../config/db");
+const { createNotification } = require("../services/notificationsService");
 exports.createJob = async(req,res)=>{
     try{
         const client_id = req.user.id;
         const {title,description,category,budget,experience_level,deadline,location} = req.body;
         const job = await pool.query("INSERT INTO jobs (client_id,title,description,category,budget,experience_level,deadline,location) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *",[client_id,title,description,category,budget,experience_level,deadline,location]);
+        const io = req.app.get("io");
+        const freelancers = await pool.query(
+            `SELECT id FROM users WHERE role = 'freelancer'`
+        );
+        for(const freelancer of freelancers.rows){
+            await createNotification({
+               io,
+               userId: freelancer.id,
+               title:"New Job Posted",
+               message:`A new job "${job.rows[0].title}" has been posted.`,
+               type:"JOB",
+            
+            });
+        }
         res.status(201).json({success:true,message:"Job posted successfully",job:job.rows[0]});
     }catch(error){
         console.log(error);
@@ -78,7 +93,6 @@ exports.getMyJobs = async (req, res) => {
 };
 exports.updateJob = async(req,res)=>{
     try{
-        const clientId = req.user.id;
         const { id } = req.params;
         const {
             title,
@@ -89,12 +103,18 @@ exports.updateJob = async(req,res)=>{
             deadline,
             location
         } = req.body;
-        const job = await pool.query(
-            `SELECT * 
-            FROM jobs
-            WHERE id = $1
-            AND client_id = $2`,[id,clientId]
-        );
+        let job;
+        if (req.user.role === "admin") {
+            job = await pool.query(
+                `SELECT * FROM jobs WHERE id = $1`,[id]
+            );
+        } else {
+            job = await pool.query(
+                `SELECT * FROM jobs
+                WHERE id = $1
+                AND client_id = $2`,[id, req.user.id]
+            );
+        }
         if(job.rows.length === 0){
             return res.status(404).json({success:false,message:"Job not found"});
         }
@@ -110,6 +130,24 @@ exports.updateJob = async(req,res)=>{
             WHERE id = $8
             RETURNING *`,[title,description,category,budget,experience_level,deadline,location,id]
         );
+        const io = req.app.get("io");
+        // Find all freelancers who applied
+        const applicants = await pool.query(
+            `SELECT DISTINCT freelancer_id
+            FROM proposals 
+            WHERE job_id = $1`,[id]
+        );
+        // Notify each applicant
+        for (const applicant of applicants.rows) {
+            await createNotification({
+            io,
+            userId: applicant.freelancer_id,
+            title: "Job Updated",
+            message: `The job "${updatedJob.rows[0].title}" has been updated.`,
+            type: "JOB_UPDATE",
+            relatedId: id,
+        });
+    }
         res.json({success:true,message:"Job updated successfully",job:updatedJob.rows[0]});
     }catch(error){
         console.log(error);

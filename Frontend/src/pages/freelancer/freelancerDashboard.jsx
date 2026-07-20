@@ -136,6 +136,8 @@ export default function FreelancerDashboard() {
                           navigate("/messages");
                         }else if(item.label === "Saved Jobs"){
                           navigate("/freelancer/saved-jobs");
+                        }else if(item.label === "Notifications"){
+                          navigate("/notifications");
                         }
                       }}
                      className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left transition ${
@@ -176,10 +178,10 @@ export default function FreelancerDashboard() {
                   placeholder="Search jobs..."
                 />
               </div>
-              <button className="rounded-xl border border-slate-200 p-2">
+              <button onClick={()=>navigate("/notifications")} className="rounded-xl border border-slate-200 p-2">
                 <Bell className="h-5 w-5 text-slate-600" />
               </button>
-              <button className="rounded-xl border border-slate-200 p-2">
+              <button onClick={()=>navigate("/messages")} className="rounded-xl border border-slate-200 p-2">
                 <Mail className="h-5 w-5 text-slate-600" />
               </button>
             </div>

@@ -68,6 +68,8 @@ function Sidebar({ items, title, subtitle, sidebarOpen, setSidebarOpen,handleLog
                           navigate("/client/proposals");
                         }else if(item.label === "Messages"){
                           navigate("/messages");
+                        }else if(item.label === "Notifications"){
+                          navigate("/notifications");
                         }
                         else if(item.label === "Logout"){
                           handleLogout();
@@ -89,6 +91,7 @@ function Sidebar({ items, title, subtitle, sidebarOpen, setSidebarOpen,handleLog
 }
 
 function Topbar({ title, subtitle, setSidebarOpen }) {
+  const navigate = useNavigate();
   return (
     <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-4 md:px-6">
       <div className="flex items-center gap-3">
@@ -112,10 +115,10 @@ function Topbar({ title, subtitle, setSidebarOpen }) {
             placeholder="Search..."
           />
         </div>
-        <button className="rounded-xl border border-slate-200 p-2">
+        <button onClick={()=>navigate("/notifications")} className="rounded-xl border border-slate-200 p-2">
           <Bell className="h-5 w-5 text-slate-600" />
         </button>
-        <button className="rounded-xl border border-slate-200 p-2">
+        <button onClick={()=>navigate("/messages")} className="rounded-xl border border-slate-200 p-2">
           <Mail className="h-5 w-5 text-slate-600" />
         </button>
       </div>
