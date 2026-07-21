@@ -131,3 +131,58 @@ exports.loginUser = async (req, res) => {
   }
 
 };
+exports.googleLogin = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "Email is required",
+      });
+    }
+    // Check if user exists
+    const existingUser = await pool.query(
+      "SELECT * FROM users WHERE email = $1",
+      [email]
+    );
+    if (existingUser.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Account not found. Please register first.",
+      });
+    }
+    const user = existingUser.rows[0];
+    // Generate JWT
+    const token = jwt.sign(
+      {
+        id: user.id,
+        role: user.role,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1d",
+      }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Google Login Successful",
+      token,
+      user: {
+        id: user.id,
+        full_name: user.full_name,
+        email: user.email,
+        role: user.role,
+        profile_image: user.profile_image,
+      },
+    });
+
+  } catch (error) {
+    console.log(error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+  }
+};

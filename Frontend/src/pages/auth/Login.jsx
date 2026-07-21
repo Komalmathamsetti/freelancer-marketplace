@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { loginUser } from "../../services/loginService";
 import { Link, useNavigate } from "react-router-dom";
+import { signInWithPopup } from "firebase/auth";
+import { auth,provider } from "../../firebase";
+import API from "../../services/api";
 import toast from "react-hot-toast";
 
 export default function LoginPage() {
@@ -16,7 +19,29 @@ export default function LoginPage() {
       [e.target.name]: e.target.value,
     });
   };
-
+   const handleGoogleLogin = async()=>{
+    try{
+       const result = await signInWithPopup(auth,provider);
+       const googleUser = result.user;
+       const response = await API.post("/api/auth/google",{
+          email: googleUser.email,
+       });
+       localStorage.setItem("token",response.data.token);
+       localStorage.setItem("user",JSON.stringify(response.data.user));
+       toast.success(`Welcome back, ${response.data.user.full_name}!`);
+       const role = response.data.user.role;
+       if (role === "client") {
+        navigate("/client/dashboard");
+      } else if (role === "freelancer") {
+        navigate("/freelancer/dashboard");
+      } else {
+        navigate("/admin/dashboard");
+      }
+    }catch(error){
+      console.log(error);
+      toast.error(error.response?.data?.message || "Google SignIn failed");
+    }
+  };
   const handleSubmit = async (e) => {
 
     e.preventDefault();
@@ -126,18 +151,6 @@ export default function LoginPage() {
             </div>
 
             <div className="flex items-center justify-between text-sm">
-
-              <label className="flex items-center gap-2 text-gray-600">
-
-                <input
-                  type="checkbox"
-                  className="h-4 w-4 rounded border-gray-300"
-                />
-
-                Remember Me
-
-              </label>
-
               <a
                 href="#"
                 className="text-blue-600 hover:text-blue-700 font-medium"
@@ -153,7 +166,12 @@ export default function LoginPage() {
             >
               Login
             </button>
-
+            <div className="mb-6">
+          <button type="button" onClick={handleGoogleLogin} className="w-full flex items-center justify-center gap-3 rounded-lg py-3 border border-gray-300 bg-white hover:bg-gray-50 transition">
+            <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="w-5 h-5"/>
+            <span className="font-medium"> Continue with Google</span>
+          </button>
+        </div>
             <p className="text-center text-sm text-gray-600">
 
               Don't have an account?

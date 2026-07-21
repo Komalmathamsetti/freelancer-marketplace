@@ -23,8 +23,7 @@ export default function Register() {
 
     try {
       const response = await registerUser(formData);
-      toast(response.data.message);
-      console.log(response.data);
+      toast.success(response.data.message);
       // Clear form after successful registration
       setFormData({
         full_name: "",
@@ -37,7 +36,6 @@ export default function Register() {
       toast.error(error.response?.data?.message || "Something went wrong");
     }
   };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-blue-50">
       <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
@@ -64,7 +62,7 @@ export default function Register() {
         <h2 className="text-3xl font-bold text-blue-600 mb-6 text-center">
           Register
         </h2>
-
+        
         <form className="space-y-4" onSubmit={handleSubmit}>
 
           <div>

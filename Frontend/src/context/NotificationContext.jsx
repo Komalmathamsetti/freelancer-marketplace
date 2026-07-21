@@ -30,10 +30,8 @@ export const NotificationProvider = ({ children }) => {
   if (!user) return;
 
   const handleConnect = () => {
-    console.log("Socket Connected:", socket.id);
 
     socket.emit("join", user.id);
-    console.log("Joined room:", user.id);
   };
   if (socket.connected) {
     handleConnect();
@@ -49,8 +47,6 @@ export const NotificationProvider = ({ children }) => {
 
 
   const handleNotification = (notification) => {
-    console.log("Notification received:", notification);
-
     setNotifications((prev) => [notification, ...prev]);
 
     toast.success(notification.title);
