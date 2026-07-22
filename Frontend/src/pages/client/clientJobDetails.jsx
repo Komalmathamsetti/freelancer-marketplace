@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getClientJob,closeJob } from "../../services/jobServices";
-import axios from "axios";
+import API from "../../services/api";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
 export default function ClientJobDetails() {
@@ -78,14 +78,11 @@ export default function ClientJobDetails() {
     try{
       setLoadingRecommendations(true);
       const token = localStorage.getItem("token");
-      const response = await axios.get(
-        `http://localhost:5000/api/ai/recommend/${id}`,
-        {
-          headers:{
-            Authorization:`Bearer ${token}`,
-          },
-        }
-      );
+      const response = await API.get(`/api/ai/recommend/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setRecommendations(response.data.recommendations);
       setShowRecommendations(true);
     }catch(error){
