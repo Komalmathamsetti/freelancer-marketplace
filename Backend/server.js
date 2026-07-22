@@ -41,7 +41,7 @@ app.use("/api/reviews",reviewRoutes);
 app.use("/api/ai",aiRoutes);
 app.use("/api/notifications",notificationRoutes);
 app.use(
-    "/uploads",
+    "/api/uploads",
     express.static(path.join(__dirname, "uploads"))
 );
 app.get("/api/profile", authMiddleware, (req, res) => {
