@@ -176,13 +176,24 @@ export default function ClientJobDetails() {
         </div>
 
         {/* Required Skills */}
-        <div className="rounded-3xl bg-white shadow-sm hover:shadow-lg transition-shadow border border-slate-100 p-6 sm:p-8">
-          <h2 className="text-xl font-semibold text-slate-900">Required Skills</h2>
-          <div className="mt-4">
-            <span className="text-slate-500">
-                Skills are not available.
-            </span>
-          </div>
+        <div className="mt-8">
+          <h3 className="text-xl font-semibold text-slate-800 mb-3">
+            Required Skills
+          </h3>
+          {job.required_skills ? (
+            <div className="flex flex-wrap gap-2">
+              {job.required_skills.split(",").map((skill, index) => (
+                <span
+                  key={index} className="rounded-full bg-blue-100 text-blue-700 px-4 py-2 text-sm font-medium">
+                    {skill.trim()}
+                </span>
+              ))}
+            </div>
+            ) : (
+            <p className="text-slate-500">
+              No required skills specified.
+            </p>
+          )}
         </div>
 
         {/* Applicants Summary */}

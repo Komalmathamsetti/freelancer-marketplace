@@ -94,6 +94,62 @@ export default function ApplicantsPage() {
     </div>
     );
   }
+  if (!loading && applicants.length === 0) {
+  return (
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-6">
+      <div className="max-w-xl rounded-3xl border border-slate-200 bg-white p-10 text-center shadow-lg">
+
+        {/* Icon */}
+        <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-blue-100">
+          <Eye className="h-12 w-12 text-blue-600" />
+        </div>
+
+        {/* Heading */}
+        <h1 className="mt-6 text-3xl font-bold text-slate-900">
+          No Applicants Yet
+        </h1>
+
+        {/* Description */}
+        <p className="mt-4 text-slate-600 leading-7">
+          This job hasn't received any applications yet.
+          Once freelancers submit proposals, they'll appear here for you to review.
+        </p>
+
+        {/* Tips */}
+        <div className="mt-8 rounded-2xl bg-slate-50 p-6 text-left">
+          <h3 className="font-semibold text-blue-700">
+            💡 Tips to attract more freelancers
+          </h3>
+
+          <ul className="mt-4 space-y-3 text-sm text-slate-600">
+            <li>✅ Write a clear job description.</li>
+            <li>✅ Mention the required skills.</li>
+            <li>✅ Offer a competitive budget.</li>
+            <li>✅ Set a realistic deadline.</li>
+          </ul>
+        </div>
+
+        {/* Buttons */}
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
+          <button
+            onClick={() => navigate("/client/my-jobs")}
+            className="rounded-2xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700"
+          >
+            Back to My Jobs
+          </button>
+
+          <button
+            onClick={() => navigate("/client/dashboard")}
+            className="rounded-2xl border border-slate-300 px-6 py-3 font-semibold hover:bg-slate-100"
+          >
+            Dashboard
+          </button>
+        </div>
+
+      </div>
+    </div>
+  );
+  }
   return (
     <div className="min-h-screen bg-slate-50 px-4 py-8 text-slate-900 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">

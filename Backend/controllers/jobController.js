@@ -3,8 +3,8 @@ const { createNotification } = require("../services/notificationsService");
 exports.createJob = async(req,res)=>{
     try{
         const client_id = req.user.id;
-        const {title,description,category,budget,experience_level,deadline,location} = req.body;
-        const job = await pool.query("INSERT INTO jobs (client_id,title,description,category,budget,experience_level,deadline,location) VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *",[client_id,title,description,category,budget,experience_level,deadline,location]);
+        const {title,description,category,budget,experience_level,deadline,location,required_skills} = req.body;
+        const job = await pool.query("INSERT INTO jobs (client_id,title,description,category,budget,experience_level,deadline,location,required_skills) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *",[client_id,title,description,category,budget,experience_level,deadline,location,required_skills]);
         const io = req.app.get("io");
         const freelancers = await pool.query(
             `SELECT id FROM users WHERE role = 'freelancer'`
@@ -101,7 +101,8 @@ exports.updateJob = async(req,res)=>{
             budget,
             experience_level,
             deadline,
-            location
+            location,
+            required_skills,
         } = req.body;
         let job;
         if (req.user.role === "admin") {
@@ -126,9 +127,10 @@ exports.updateJob = async(req,res)=>{
             budget= $4,
             experience_level = $5,
             deadline = $6,
-            location = $7
-            WHERE id = $8
-            RETURNING *`,[title,description,category,budget,experience_level,deadline,location,id]
+            location = $7,
+            required_skills = $8
+            WHERE id = $9
+            RETURNING *`,[title,description,category,budget,experience_level,deadline,location,required_skills,id]
         );
         const io = req.app.get("io");
         // Find all freelancers who applied

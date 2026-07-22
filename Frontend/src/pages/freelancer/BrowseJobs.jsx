@@ -71,7 +71,19 @@ export default function BrowseJobsPage() {
                   {job.category}
                 </span>
               </div>
-
+              <div className="mt-3 flex flex-wrap gap-2">
+                {job.required_skills ?.split(",").slice(0, 4).map((skill, index) => (
+                  <span key={index} className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+                    {skill.trim()}
+                  </span>
+                ))}
+                {job.required_skills?.split(",").length > 4 && (
+                  <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700">
+                    +{job.required_skills.split(",").length - 4}
+                  </span>
+                )}
+              </div>
+              
               <div className="space-y-3 text-sm text-gray-700">
                 <div className="flex justify-between">
                   <span className="text-gray-500">Budget</span>
@@ -90,7 +102,6 @@ export default function BrowseJobsPage() {
                   <span className="font-semibold">{job.deadline?.split("T")[0]}</span>
                 </div>
               </div>
-
               <button onClick = {()=> navigate(`/freelancer/jobs/${job.id}`)} className="mt-6 w-full rounded-2xl bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-700">
                 View Details
               </button>

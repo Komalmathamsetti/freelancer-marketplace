@@ -1,5 +1,5 @@
 import { useMemo, useState,useEffect,useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useParams,useNavigate } from "react-router-dom";
 import { sendMessage as sendMessageAPI,getConversations,getMessages,deleteMessage,editMessage } from "../../services/messageServices";
 import socket from "../../socket";
 const Avatar = ({ initials, online }) => (
@@ -30,10 +30,9 @@ export default function MessagingModule() {
   const [menuOpen,setMenuOpen] = useState(null);
   const [typingUser,setTypingUser] = useState(null);
   const typingTimeout = useRef(null);
+  const navigate = useNavigate();
 const currentUser = JSON.parse(localStorage.getItem("user"));
-
 const bottomRef = useRef();
-
 const { userId } = useParams();
 
 const filteredConversations = useMemo(() => {
@@ -226,6 +225,9 @@ useEffect(() => {
           >
             <div className="border-b border-slate-100 p-5">
               <div className="mb-4">
+                <button onClick={() => navigate(currentUser.role === "client"? "/client/dashboard": currentUser.role === "freelancer"? "/freelancer/dashboard": "/admin/dashboard")} className="mb-4 inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100">
+                  ← Back to Dashboard
+                </button>
                 <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
                   Messages
                 </h1>

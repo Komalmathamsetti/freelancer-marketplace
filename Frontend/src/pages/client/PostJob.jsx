@@ -11,7 +11,8 @@ export default function JobPostingPage() {
         budget:"",
         experience_level:"",    
         deadline:"",
-        location:""
+        location:"",
+        required_skills:""
     });
     const handleChange = (e)=>{
         setFormData({...formData,[e.target.name]:e.target.value});
@@ -134,6 +135,12 @@ export default function JobPostingPage() {
               placeholder="e.g. Remote, New York, London"
               className="w-full rounded-2xl border border-gray-200 bg-blue-50 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
             />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-2">
+              Required Skills
+            </label>
+            <textarea name="required_skills" value={formData.required_skills} onChange={handleChange} rows={3} placeholder="Example: React, Node.js, PostgreSQL, JWT"className="w-full border rounded-lg p-3"/>
           </div>
         </div>
 

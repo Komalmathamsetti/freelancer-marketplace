@@ -1,4 +1,5 @@
 import useNotifications from "../../hooks/useNotifications";
+import { useNavigate } from "react-router-dom";
 const typeMeta = {
   "New Application": { icon: "📩", accent: "from-blue-50 to-white" },
   "Proposal Accepted": { icon: "🎉", accent: "from-emerald-50 to-white" },
@@ -15,7 +16,7 @@ const formatRelativeTime = (dateValue) => {
   const diffMins = Math.floor(diffMs / 60000);
   const diffHours = Math.floor(diffMs / 3600000);
   const diffDays = Math.floor(diffMs / 86400000);
-
+  
   if (diffMins < 1) return "Just now";
   if (diffMins < 60) return `${diffMins} minute${diffMins === 1 ? "" : "s"} ago`;
   if (diffHours < 24) return `${diffHours} hour${diffHours === 1 ? "" : "s"} ago`;
@@ -53,7 +54,6 @@ const EmptyState = () => (
 const NotificationCard = ({ notification, onMarkRead, onDelete }) => {
   const meta = typeMeta[notification.type] || { icon: "🔔" };
   const unread = !notification.is_read;
-
   return (
     <article
       className={[
@@ -67,7 +67,6 @@ const NotificationCard = ({ notification, onMarkRead, onDelete }) => {
         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-2xl shadow-sm">
           {meta.icon}
         </div>
-
         <div className="min-w-0 flex-1">
           <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
             <div className="min-w-0">
@@ -128,7 +127,8 @@ export default function NotificationsPage() {
     handleMarkAsRead,
     handleDelete,
   } = useNotifications();
-
+  const navigate = useNavigate();
+  const currentUser = JSON.parse(localStorage.getItem("user"));
   const unreadCount = notifications.filter(
     (notification) => !notification.is_read
   ).length;
@@ -138,6 +138,9 @@ export default function NotificationsPage() {
         {/* Header */}
         <div className="mb-6 flex flex-col gap-4 rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:flex-row sm:items-center sm:justify-between">
           <div>
+            <button onClick={() => navigate(currentUser.role === "client"? "/client/dashboard": currentUser.role === "freelancer"? "/freelancer/dashboard": "/admin/dashboard")} className="mb-4 inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100">
+              ← Back to Dashboard
+            </button>
             <h1 className="text-3xl font-semibold tracking-tight text-slate-900">
               Notifications
             </h1>

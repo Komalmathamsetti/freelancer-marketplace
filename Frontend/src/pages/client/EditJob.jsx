@@ -17,7 +17,8 @@ export default function EditJobPage() {
     experience_level:"",
     location:"",
     deadline:"",
-    description:""
+    description:"",
+    required_skills:""
    });
    useEffect(() => {
   let ignore = false;
@@ -171,6 +172,16 @@ export default function EditJobPage() {
                 onChange={handleChange}
                 className="w-full rounded-3xl border border-slate-200 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
               />
+            </div>
+            <div className="md:col-span-2">
+              <label className="mb-2 block text-sm font-medium">
+                Required Skills
+              </label>
+              <textarea rows={3} name="required_skills" value={job.required_skills || ""} onChange={handleChange} placeholder="Example: React, Node.js, PostgreSQL, JWT"
+              className="w-full rounded-3xl border border-slate-200 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"/>
+              <p className="mt-2 text-sm text-slate-500">
+                Separate each skill with a comma.
+              </p>
             </div>
           </div>
 

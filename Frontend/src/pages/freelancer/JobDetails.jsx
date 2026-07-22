@@ -125,7 +125,26 @@ export default function JobDetailsPage() {
             {job.description}
           </p>
         </div>
-
+        {/* Required Skills */}
+        <div className="mt-8">
+          <h3 className="text-xl font-semibold text-slate-800 mb-3">
+            Required Skills
+          </h3>
+          {job.required_skills ? (
+            <div className="flex flex-wrap gap-2">
+              {job.required_skills.split(",").map((skill, index) => (
+                <span
+                  key={index} className="rounded-full bg-blue-100 text-blue-700 px-4 py-2 text-sm font-medium">
+                    {skill.trim()}
+                </span>
+              ))}
+            </div>
+            ) : (
+            <p className="text-slate-500">
+              No required skills specified.
+            </p>
+          )}
+        </div>
         <div className="mt-8 flex flex-col gap-4 sm:flex-row">
           {!isAdmin && (
             <>
