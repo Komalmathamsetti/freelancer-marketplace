@@ -23,7 +23,7 @@ export default function LoginPage() {
     try{
        const result = await signInWithPopup(auth,provider);
        const googleUser = result.user;
-       const response = await API.post("/api/auth/google",{
+       const response = await API.post("/auth/google",{
           email: googleUser.email,
        });
        localStorage.setItem("token",response.data.token);

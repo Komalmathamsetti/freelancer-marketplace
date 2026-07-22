@@ -78,7 +78,7 @@ export default function ClientJobDetails() {
     try{
       setLoadingRecommendations(true);
       const token = localStorage.getItem("token");
-      const response = await API.get(`/api/ai/recommend/${id}`, {
+      const response = await API.get(`/ai/recommend/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
