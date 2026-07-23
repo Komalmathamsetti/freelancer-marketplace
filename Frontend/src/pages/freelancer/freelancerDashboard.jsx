@@ -81,7 +81,7 @@ export default function FreelancerDashboard() {
     { label: "Browse Jobs", icon: Briefcase },
     { label:"My Applications", icon:FileText},
     { label: "Saved Jobs", icon: FileText },
-    { label: "Messages", icon: MessageSquare },
+    { label: "Messages", icon: MessageSquare},
     { label: "Notifications", icon: Bell },
     { label: "Logout", icon: LogOut },
   ];
@@ -259,9 +259,6 @@ export default function FreelancerDashboard() {
                   <div className="h-20 w-20 rounded-full bg-linear-to-br from-blue-500 to-sky-300"></div>
                   <h3 className="mt-4 text-xl font-semibold">{user?.full_name}</h3>
                   <p className="text-sm text-slate-500">Freelancer</p>
-                  <p className="mt-3 text-sm text-slate-600">
-                    React • Tailwind • UI/UX • Responsive Design
-                  </p>
                   <div className="mt-6 space-y-3">
                     <div className="flex justify-between">
                       <span>Applications</span>
@@ -272,7 +269,7 @@ export default function FreelancerDashboard() {
                       <span className="font-semibold">{stats.savedJobs}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Recommended Jobs  </span>
+                      <span>Recommended Jobs</span>
                       <span className="font-semibold">{stats.recommendedJobs}</span>
                     </div>
                   </div>

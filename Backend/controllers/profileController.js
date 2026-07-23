@@ -10,7 +10,11 @@ exports.getProfile = async(req,res)=>{
             WHERE user_id = $1`,[userId]
         );
         if(profile.rows.length === 0){
-            return res.status(404).json({success:false,message:"Profile not found"});
+            return res.json({
+                success: true,
+                user: user.rows[0],
+                profile: null
+            });
         }
         res.json({success:true,user:user.rows[0],profile:profile.rows[0]});
     }catch(error){

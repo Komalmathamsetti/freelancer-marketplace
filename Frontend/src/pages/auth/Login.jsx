@@ -150,16 +150,6 @@ export default function LoginPage() {
 
             </div>
 
-            <div className="flex items-center justify-between text-sm">
-              <a
-                href="#"
-                className="text-blue-600 hover:text-blue-700 font-medium"
-              >
-                Forgot Password
-              </a>
-
-            </div>
-
             <button
               type="submit"
               className="w-full rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 transition shadow-lg shadow-blue-200"
